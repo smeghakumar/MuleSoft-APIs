@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="670deae3-2e72-4550-ac47-316b28d39543" basePath="/${weather.basepath}">
+		<http:request-connection host="${weather.host}" protocol="${weather.protocol}" port="${weather.port}"/>
+		<http:default-query-params >
+			<http:query-param key='#["appid"]' value='${weather.appid}' />
+		</http:default-query-params>
+	</http:request-config>
+	 
+	<json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="24d8c780-b35c-49ed-b5ad-374330c589b5" environment="${mule.env}" />
+	<configuration-properties doc:name="Configuration properties" doc:id="fc38b384-f12d-484f-b522-59f6e807ef70" file="weather-data-sys-api-configuration.yaml" />
+	<configuration doc:name="Configuration" doc:id="7826480f-fd58-4e35-933c-928e13547721" defaultErrorHandler-ref="weather-data-sys-api-configurationError_Handler" />
+	<error-handler name="weather-data-sys-api-configurationError_Handler" doc:id="6fc325e6-f2ed-4237-9295-c8ac6e024e9b" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b0caeaa6-a8e9-4301-ab98-1497c14365a6" >
+			<ee:transform doc:name="Transform Message" doc:id="e1392978-8da0-4006-a18b-340e61d9739c" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	errorMessage: error.errorMessage,
+	errorType: error.errorType
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		</on-error-propagate>
+	</error-handler>
+	
+</mule>

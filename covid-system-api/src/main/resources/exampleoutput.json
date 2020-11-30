@@ -1,0 +1,16 @@
+
+        [{
+            "date": "2020-11-23",
+            "areaName": "East Midlands",
+            "areaCode": "E12000004",
+            "daily": 35,
+            "cumulative": 129918
+        },
+        {
+            "date": "2020-11-22",
+            "areaName": "East Midlands",
+            "areaCode": "E12000004",
+            "daily": 598,
+            "cumulative": 129883
+        }]
+        

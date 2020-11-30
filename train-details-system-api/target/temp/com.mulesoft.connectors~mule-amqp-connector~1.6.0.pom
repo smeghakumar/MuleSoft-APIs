@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.mulesoft.connectors</groupId>
+	<artifactId>mule-amqp-connector</artifactId>
+	<version>1.6.0</version>
+	<packaging>mule-extension</packaging>
+	<name>AMQP Connector</name>
+
+	<parent>
+		<groupId>org.mule.extensions</groupId>
+		<artifactId>mule-ee-core-modules-parent</artifactId>
+		<version>1.1.6</version>
+	</parent>
+
+	<properties>
+		<formatterConfigPath>formatter.xml</formatterConfigPath>
+		<rabbitmq.amqp-client.version>5.8.0</rabbitmq.amqp-client.version>
+		<commonsLangVersion>3.9</commonsLangVersion>
+		<commonsIoVersion>2.6</commonsIoVersion>
+		<javaXmlBindVersion>2.3.1-MULE-001</javaXmlBindVersion>
+		<powermockVersion>2.0.4</powermockVersion>
+		<apacheQpidBrokerVersion>7.1.8</apacheQpidBrokerVersion>
+
+		<licenseYear>2020</licenseYear>
+	</properties>
+
+	<dependencies>
+		<!-- Transport dependencies -->
+		<dependency>
+			<groupId>com.rabbitmq</groupId>
+			<artifactId>amqp-client</artifactId>
+			<version>${rabbitmq.amqp-client.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commonsIoVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${commonsLangVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.qpid</groupId>
+			<artifactId>qpid-broker-core</artifactId>
+			<version>${apacheQpidBrokerVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.qpid</groupId>
+			<artifactId>qpid-broker-plugins-amqp-0-8-protocol</artifactId>
+			<version>${apacheQpidBrokerVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.qpid</groupId>
+			<artifactId>qpid-broker-plugins-memory-store</artifactId>
+			<version>${apacheQpidBrokerVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+			<version>${javaXmlBindVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-core</artifactId>
+			<version>${powermockVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito2</artifactId>
+			<version>${powermockVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<version>${powermockVersion}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<systemPropertyVariables>
+						<amqpVirtualHost>/</amqpVirtualHost>
+						<amqpUserName>guest</amqpUserName>
+						<amqpPassword>guest</amqpPassword>
+						<amqpHost>127.0.0.1</amqpHost>
+						<amqpPort>5672</amqpPort>
+						<amqpSslPort>5671</amqpSslPort>
+						<amqpSslProtocol>${amqpSslProtocolByJdk}</amqpSslProtocol>
+						<QPID_WORK>${build.directory}/work</QPID_WORK>
+						<mule.disable.nio.connection>${mule.disable.nio.connection}</mule.disable.nio.connection>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<properties>
+				<mule.disable.nio.connection>false</mule.disable.nio.connection>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<id>nio</id>
+		</profile>
+		<profile>
+			<properties>
+				<mule.disable.nio.connection>true</mule.disable.nio.connection>
+			</properties>
+			<id>blocking</id>
+		</profile>
+	</profiles>
+
+	<repositories>
+		<repository>
+			<id>mulesoft-private</id>
+			<name>Mulesoft internal repository</name>
+			<url>https://repository.mulesoft.org/nexus/content/repositories/private/</url>
+		</repository>
+		<repository>
+			<id>mule</id>
+			<name>Mule Repository</name>
+			<url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>mulesoft-private</id>
+			<name>Mulesoft internal repository</name>
+			<url>https://repository.mulesoft.org/nexus/content/repositories/private/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+</project>

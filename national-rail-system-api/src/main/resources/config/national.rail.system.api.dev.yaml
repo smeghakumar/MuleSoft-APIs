@@ -1,0 +1,49 @@
+http:
+  port: "8083"
+  
+json:
+  logger:
+    application:
+      name: ${project.artifactId}
+      version: ${project.version}
+   
+    disabledFields: ""
+
+mule:
+  env: ""
+  
+nre:
+  accessToken: "*************"
+  wsdl: "https://lite.realtime.nationalrail.co.uk/OpenLDBSVWS/wsdl.aspx?ver=2017-10-01"
+  service: "ldbsv"
+  port: "LDBSVServiceSoap"
+  address: "https://lite.realtime.nationalrail.co.uk/OpenLDBSVWS/ldbsv12.asmx"
+  portRef: "LDBSVRefServiceSoap"
+  addressRef: "https://lite.realtime.nationalrail.co.uk/OpenLDBSVWS/ldbsvref.asmx"
+  operation:
+    arrival:
+      withServiceOperation: "GetArrBoardWithDetails"
+  operationRef:
+    stationList: "GetStationList"
+
+    
+nrePV:
+  accessToken: "**************"
+  wsdl: "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/wsdl.aspx?ver=2017-10-01"
+  service: "ldb"
+  port: "LDBServiceSoap12"
+  address: "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/ldb11.asmx"
+  operation:
+    arrival:
+      withServiceOperation: "GetArrBoardWithDetails"
+      
+mock:
+  host: "backend-mock-ext-api.us-e2.cloudhub.io"
+  port: "80"
+  basePath: "/api"
+  stations:
+    path: "api/stations"
+  arrivals:
+    path: "api/nrs"
+  protocol: "HTTP"
+  responseTimeout: "10000"

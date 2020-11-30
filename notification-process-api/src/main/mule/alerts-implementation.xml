@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<!-- <email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="a7b819c1-1c6e-4d21-ac7b-3c1a2799ae65" >
+		<email:smtp-connection host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" />
+	</email:smtp-config> -->
+	<flow name="get-alerts-by-subscription" doc:id="6635307f-f750-4de6-b00d-668f1db3af99" >
+		<logger level="INFO" doc:name="Logger" doc:id="800c03ae-2102-4bbb-8308-8bcffa889167" message="get-alerts-bySubscription"/>
+		<http:request method="GET" doc:name="Request" doc:id="ad84f78b-4e2c-428a-a0f3-f351d5f10de7" config-ref="alertForIdConfiguration" path="${alertForId.basePath}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	id : message.attributes.uriParams.id
+}]]]></http:uri-params>
+		</http:request>
+	</flow>
+	<flow name="alerts-email" doc:id="5ec1559c-f103-4102-80b1-a2c200554276" >
+		<vm:listener queueName="delayedTrain" doc:name="Listener" doc:id="2c1b5663-4a7c-4919-bb18-a5505d9a8656" config-ref="alertNotificationVMConfig"/>
+		<logger level="INFO" doc:name="Logger" doc:id="229a5b11-edbe-4907-ab16-4c9f3ebfe622" message="payload from queue:::#[payload]"/>
+		<foreach doc:name="For each alert retrieve the users who need to be notified" doc:id="3ca2c02a-fee2-4d4b-a5d4-fbd7eeb2a6d6" >
+			<ee:transform doc:name="Transform Message" doc:id="de13e973-f4c6-452e-9e4d-42426d0d67ac">
+				<ee:message />
+				<ee:variables>
+					<ee:set-variable variableName="delayType"><![CDATA[payload.delays.delayType]]></ee:set-variable>
+					<ee:set-variable variableName="sourceLocation"><![CDATA[payload.delays.source]]></ee:set-variable>
+					<ee:set-variable variableName="destinationLocation"><![CDATA[payload.delays.destination]]></ee:set-variable>
+					<ee:set-variable variableName="estimatedTime"><![CDATA[payload.delays.estimatedTime]]></ee:set-variable>
+					<ee:set-variable variableName="standardTime"><![CDATA[payload.delays.standardTime]]></ee:set-variable>
+					<ee:set-variable variableName="delayTime"><![CDATA[payload.delays.delayMins]]></ee:set-variable>
+					
+				
+</ee:variables>
+			</ee:transform>
+			<http:request method="GET" doc:name="fetch users for each alert" doc:id="cd2b41be-1c75-45a1-a85b-1519a558d889" config-ref="usersConfiguration" path="${delayUsers.basePath}" target="user">
+				<http:query-params ><![CDATA[#[output application/java
+---
+{
+	sourceLocationCode : vars.sourceLocation,
+	destinationLocationCode: vars.destinationLocation
+}]]]></http:query-params>
+			</http:request> 
+			<foreach doc:name="For Each User Send An Email To Inform Them That Their Train Has Been Delayed" doc:id="561e13bf-e166-4eec-b09d-1cf0a788b2cd" collection="#[vars.user]">
+				<http:request method="GET" doc:name="Get Subscriptions By User Id" doc:id="a70427c7-2392-4a07-b103-0a4db56f4e56" config-ref="usersBySubIdConfiguration" path="${delayUserIdSubscription.basePath}">
+					<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	userId : payload.userId
+}]]]></http:uri-params>
+					<http:query-params ><![CDATA[#[output application/java
+---
+{
+	sourceLocationCode : vars.sourceLocation,
+	destinationLocationCode: vars.destinationLocation
+}]]]></http:query-params>
+				</http:request>
+				
+				<ee:transform doc:name="Transform Message" doc:id="d86365df-3b28-4fc0-8d68-4d8ce169177c" >
+					<ee:message />
+					<ee:variables >
+						<ee:set-variable variableName="alert" ><![CDATA[%dw 2.0
+output application/json
+
+
+---
+{
+	subscriptionId : payload[0].subscriptionId as Number,
+	delayType : vars.delayType,
+	delayMins : vars.delayTime	
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<!-- <http:request method="GET" doc:name="Create Alert By User Id Subscription Id" doc:id="93dd0b55-5a87-4a00-966d-a40ebd00c91c" config-ref="createAlertonfiguration" path="${createAlert.basePath}"/>
+				 <parse-template doc:name="Parse Template To Replace The Content Of The Template With User And Delay Details" doc:id="39f7a124-472c-40f1-905f-73c0d8134c83" location="body.html" target="mailBody"/>
+				<logger level="INFO" doc:name="Logger" doc:id="2916fab5-538c-44f3-9777-d9fb43a3a102" message="template::::#[payload]"/>
+				-->
+				<email:send doc:id="61a963da-9abb-45a6-aceb-cedda3b8253b" fromAddress="njclabs.demo@gmail.com" subject="Delay Notification" config-ref="emailSMTPConfiguration">
+					<email:to-addresses >
+						<email:to-address value="jojisham13@gmail.com" />
+					</email:to-addresses>
+					<email:body >
+						<email:content ><![CDATA[#[%dw 2.0
+output text/plain
+---
+"Delay in your train between" ++ vars.sourceLocation ++ "and" ++ vars.destinationLocation]]]></email:content>
+					</email:body>
+				</email:send>
+			</foreach>
+		</foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="997aed1c-b7f4-42d7-aaa6-b0cb5724deaf" message="alerts-email"/>
+	</flow>  
+</mule>

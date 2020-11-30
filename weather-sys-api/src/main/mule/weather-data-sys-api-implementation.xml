@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<flow name="weather-sys-api-implementationFlow" doc:id="f2e1b5ce-8f22-4296-ac83-ca6bbccf9f8e" >
+		<set-variable value="#[message.attributes.queryParams.date]" doc:name="set Date" doc:id="280eeffa-97bf-4f26-9343-1b063dce16f0" variableName="date"/>
+		<set-variable value="#[message.attributes.queryParams.city]" doc:name="Set CityName" doc:id="e5f676b3-51c2-4f6c-b015-58922a66026a" variableName="city"/>
+		<set-variable value="#[message.attributes.queryParams.units]" doc:name="Set Units" doc:id="611e0749-5852-4de8-8b31-e647a9b535fc" variableName="units"/>
+		<json-logger:logger doc:name="Logger CityName" doc:id="5d1a15f8-70d1-4fbf-806d-528f5dbe7436" config-ref="JSON_Logger_Config" message='#[vars.city]' tracePoint="BEFORE_REQUEST"/>
+		<http:request method="GET" doc:name="Request Weather API" doc:id="a8ad46a3-bf60-49a0-89be-73d7bf133308" config-ref="HTTP_Request_configuration" path="/${weather.path}">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	q : vars.city,
+	units : vars.units default ""
+}]]]></http:query-params>
+			
+		</http:request>
+		<logger level="INFO" doc:name="Payload" doc:id="97f2d58e-b220-4ef9-ab03-57bb7dba9064" message="#[payload]"/>
+		<ee:transform doc:name="Transform Payload" doc:id="20693ba7-b018-4efa-a8d5-d66cbcdfbc67" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+fun getAvg(list)= list reduce ((item, accumulator=0) -> accumulator +
+item.main.temp as Number)
+var weatherDay = if(vars.date == null or (vars.date as Date {format:"yyyy-MM-dd"} <= (now() as DateTime )))
+	 ((now()) + |P1D|) as String{format : "yyyy-MM-dd"} else (vars.date) 
+---
+{
+	cityName: payload.city.name,
+	countryName: payload.city.country,
+	latitude: payload.city.coord.lat as String,
+	longitude: payload.city.coord.lon as String,
+	avgTemp: getAvg(payload.list)/sizeOf(payload.list),
+	weatherList: (payload.list map ((item, index) ->
+  if(item.dt_txt contains ((vars.date as String) ++ " 15:00:00" as String)) item else null)
+  filter ((item, index) -> item != null))
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log Payload" doc:id="ff6cf537-4b47-4771-ad9b-42e2e8aed768" message="#[payload]"/>
+		<ee:transform doc:name="Transform Payload to final format" doc:id="560bb67e-5e7f-4313-b849-34ba8ae4d53a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	cityName: payload.cityName,
+	countryName: payload.countryName,
+	latitude: payload.latitude,
+	longitude: payload.longitude,
+	date: payload.weatherList[0].dt_txt,
+	temperature: payload.avgTemp as String,
+	temp_min: payload.weatherList[0].main.temp_min as String,
+	temp_max: payload.weatherList[0].main.temp_max as String,
+	feelsLike: payload.weatherList[0].main.feels_like as String,
+	humidity: payload.weatherList[0].main.humidity as String,
+	weather: payload.weatherList[0].weather[0].main,
+	clouds: payload.weatherList[0].clouds.all as String,
+	windSpeed: payload.weatherList[0].wind.speed as String,
+	visibility: payload.weatherList[0].visibility as String
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log Final Output Payload" doc:id="375e7eed-5c8f-47b3-9483-7abe0b6e4f31" message="#[payload]"/>
+	</flow>
+</mule>

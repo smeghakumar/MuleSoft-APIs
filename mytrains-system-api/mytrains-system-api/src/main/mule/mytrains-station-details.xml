@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<flow name="mytrains-insert-stationdetails-flow" doc:id="e39a4b61-06e4-40d9-9821-98f9a3fa3ce2" >
+		<ee:transform doc:name="Transform Message" doc:id="b15e632e-34e7-494a-bab1-f86f6f787999" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="stationData" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="0a7dbf70-9e3c-4da3-bea7-33b95d638a6b" message="#[sizeOf(vars.stationData)]"/>
+		<json-logger:logger doc:name="flowBegin" doc:id="5c90f2d5-9f2c-44ab-9484-462d6a222904" config-ref="jsonLoggerConfig" message="Payload at the start of flow"/>
+		<db:delete doc:name="deletePreviousData" doc:id="cb81811f-5840-4f7a-9e28-ce7f52e37c78" config-ref="myTrainsDBConfig">
+			<db:sql ><![CDATA[DELETE FROM STATION_DETAILS]]></db:sql>
+		</db:delete>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="eee1f0a8-46c1-4210-8fdb-c5a7962b19f1" config-ref="myTrainsDBConfig">
+			<db:bulk-input-parameters ><![CDATA[#[vars.stationData]]]></db:bulk-input-parameters>
+			<db:sql ><![CDATA[INSERT INTO STATION_DETAILS (STATION_CODE, STATION_NAME) VALUES  (:stationCode, :stationName)]]></db:sql>
+		</db:bulk-insert>
+		<json-logger:logger doc:name="flowEnd" doc:id="f63d59d3-1de6-41f5-8e4a-3d1e2775876b" config-ref="jsonLoggerConfig" message="Payload at the end of the flow"/>
+	</flow>
+	<flow name="mytrains-retrieve-station-details-flow" doc:id="f4c62f00-a268-4610-91c9-ec63b86aea97" >
+		<json-logger:logger doc:name="flowBegin" doc:id="243e6019-cf3c-4c2a-a4f0-d607f260023b" config-ref="jsonLoggerConfig" message="Payload at the start of flow"/>
+		<db:select doc:name="retrieveStationCode" doc:id="6e577092-a989-40ba-940b-c5bd3ad0d98a" config-ref="myTrainsDBConfig">
+			<db:sql><![CDATA[SELECT DISTINCT * FROM STATION_DETAILS]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Java to Json" doc:id="bf03d3c6-768d-4aab-9efe-6ea39cc17717" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="b4109e5a-f21c-4fd5-80b9-021a07723c15" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(item) -> {
+	stationName: item.STATION_NAME,
+	stationCode: item.STATION_CODE
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="flowEnd" doc:id="2a98fdc4-0cad-42c8-ae4a-849816380925" config-ref="jsonLoggerConfig" message="Payload at the end of flow"/>
+	</flow>
+</mule>

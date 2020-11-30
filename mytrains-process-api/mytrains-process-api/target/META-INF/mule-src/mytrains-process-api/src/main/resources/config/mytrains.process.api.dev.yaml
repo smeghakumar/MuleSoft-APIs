@@ -1,0 +1,42 @@
+http:
+  port: '8082' 
+  
+mytrains:
+  host: 'mytrains-system-api.us-e2.cloudhub.io'
+  port: '80'
+  protocol: 'HTTP'
+  basePath: '/api'
+   
+okta:
+  host: 'localhost'
+  port: '8084'
+  protocol: 'HTTP'
+  basePath: '/okta/sys/api/v1'
+  header:
+      clientId: "2f9f2d34-cf0d-44d0-bac3-636182f402db"
+      clientSecret: "921867d0-f78f-4137-aa21-b21bdf0590bc"
+      
+location:
+  host: 'location-system-api.us-e2.cloudhub.io'
+  port: '80'
+  basePath: '/api'
+  protocol: 'HTTP'
+  address:  'london'     
+
+nre:
+  host: 'localhost'
+  port: '8083'
+  protocol: 'HTTP'
+  basePath: '/api'  
+  
+trains:
+  host: 'train-details-system-api.us-e2.cloudhub.io'
+  port: '80'
+  protocol: 'HTTP'
+  basePath: '/api'          
+       
+json:
+  logger:
+    application:
+      name: "mytrains-system-api"
+      version: "1.0.0-SNAPSHOT"

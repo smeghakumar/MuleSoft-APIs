@@ -1,0 +1,77 @@
+{
+    "length": 327,
+    "maxPageLimit": 2500,
+    "data": [
+        {
+            "date": "2020-11-24",
+            "areaName": "England",
+            "areaCode": "E92000001",
+            "newCasesByPublishDate": 9854,
+            "cumCasesByPublishDate": 1324742,
+            "newDeathsByDeathDate": null,
+            "cumDeathsByDeathDate": null
+        },
+        {
+            "date": "2020-11-23",
+            "areaName": "England",
+            "areaCode": "E92000001",
+            "newCasesByPublishDate": 13329,
+            "cumCasesByPublishDate": 1314888,
+            "newDeathsByDeathDate": 120,
+            "cumDeathsByDeathDate": 59038
+        },
+        {
+            "date": "2020-11-22",
+            "areaName": "England",
+            "areaCode": "E92000001",
+            "newCasesByPublishDate": 16668,
+            "cumCasesByPublishDate": 1301559,
+            "newDeathsByDeathDate": 274,
+            "cumDeathsByDeathDate": 58918
+        },
+        {
+            "date": "2020-11-21",
+            "areaName": "England",
+            "areaCode": "E92000001",
+            "newCasesByPublishDate": 17615,
+            "cumCasesByPublishDate": 1284891,
+            "newDeathsByDeathDate": 248,
+            "cumDeathsByDeathDate": 58644
+        },
+        {
+            "date": "2020-11-20",
+            "areaName": "England",
+            "areaCode": "E92000001",
+            "newCasesByPublishDate": 17845,
+            "cumCasesByPublishDate": 1267276,
+            "newDeathsByDeathDate": 339,
+            "cumDeathsByDeathDate": 58396
+        },
+        {
+            "date": "2020-11-19",
+            "areaName": "England",
+            "areaCode": "E92000001",
+            "newCasesByPublishDate": 20291,
+            "cumCasesByPublishDate": 1249431,
+            "newDeathsByDeathDate": 371,
+            "cumDeathsByDeathDate": 58057
+        },
+        {
+            "date": "2020-11-18",
+            "areaName": "England",
+            "areaCode": "E92000001",
+            "newCasesByPublishDate": 17189,
+            "cumCasesByPublishDate": 1229140,
+            "newDeathsByDeathDate": 422,
+            "cumDeathsByDeathDate": 57686
+        },
+        {
+            "date": "2020-11-17",
+            "areaName": "England",
+            "areaCode": "E92000001",
+            "newCasesByPublishDate": 17549,
+            "cumCasesByPublishDate": 1211951,
+            "newDeathsByDeathDate": 396,
+            "cumDeathsByDeathDate": 57264
+        }]
+        }

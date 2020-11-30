@@ -1,0 +1,32 @@
+{
+  "configs": [
+    "mytrains-station-details.xml",
+    "mytrains-process-global.xml",
+    "mytrains-user-management.xml",
+    "mytrains-process-api.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "com.mycompany:mytrains-process-api:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.3.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "log4j2.xml",
+        "mytrains-station-details.xml",
+        "config/mytrains.process.api.dev.yaml",
+        "mytrains-process-api.xml",
+        "application-types.xml",
+        "mytrains-user-management.xml",
+        "mytrains-process-global.xml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="covid-implementation-sapi-suite.xml" />
+	<munit:test name="covid-regionwise-test" doc:id="3a830e04-c295-45f4-8ba1-30918d6f2112" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request to get regionwise covid details" doc:id="ccca1c3e-0416-4c80-90b3-ea8bcd756ddc" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0433c73a-c567-45f6-ba27-87e3c9dea72b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://covidregionwisetest\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://covidregionwisetest\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://covidregionwisetest\mock_variable_.dwl')]" />
+						<munit-tools:variable key="location" value="#[output application/java --- readUrl('classpath://covidregionwisetest\mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="c8e7c06f-50d0-4de5-83b9-1059dffd07ea" >
+				<munit:payload value="#[readUrl('classpath://covidregionwisetest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://covidregionwisetest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://covidregionwisetest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to covid-regionwise" doc:id="c884a112-664c-41e2-8c02-93eb402f98c8" name="covid-regionwise"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="af87ea8a-e7bf-4529-8ea0-bfdc771d0927" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import covidregionwisetest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="covid-regionwise-test1" doc:id="4f0718d9-7f8e-421f-ae90-52dec4d1572b" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request to get areawise covid details" doc:id="65197ada-348e-4adf-a7f4-18330b0c6253" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="689531f1-30bd-4b90-9388-8d3e734359eb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://covidregionwisetest1\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://covidregionwisetest1\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://covidregionwisetest1\mock_variable_.dwl')]" />
+						<munit-tools:variable key="location" value="#[output application/java --- readUrl('classpath://covidregionwisetest1\mock_variable_1.dwl')]" mediaType="application/java" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="b54163ec-febd-42b0-83a9-13d4d227669d" >
+				<munit:payload value="#[readUrl('classpath://covidregionwisetest1\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://covidregionwisetest1\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://covidregionwisetest1\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to covid-regionwise" doc:id="648a924c-1315-4446-b7b8-a1528b7aba7f" name="covid-regionwise"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="cd5348fb-d81f-4b22-93ff-34de9594b421" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import covidregionwisetest1::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

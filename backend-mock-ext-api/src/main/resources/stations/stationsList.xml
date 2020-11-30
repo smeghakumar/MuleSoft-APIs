@@ -1,0 +1,14 @@
+<body>
+	<GetStationListResponse>
+		<GetStationListResult>
+			<version>2020-10-16 08:47</version>
+			<StationList>
+				<Station crs="WAT">Waterloo</Station>
+				<Station crs="BSK">Basingstoke</Station>
+				<Station crs="WOK">Woking</Station>
+				<Station crs="PST">St Pancras International</Station>
+				<Station crs="LDS">Leeds</Station>			
+			</StationList>
+		</GetStationListResult>
+	</GetStationListResponse>
+</body>

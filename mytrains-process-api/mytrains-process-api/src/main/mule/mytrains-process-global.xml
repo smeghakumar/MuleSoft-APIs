@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:locations-system-api="http://www.mulesoft.org/schema/mule/locations-system-api" xmlns:my-trains-system-api="http://www.mulesoft.org/schema/mule/my-trains-system-api" xmlns:national-rail-system-api="http://www.mulesoft.org/schema/mule/national-rail-system-api" xmlns:okta-system-api="http://www.mulesoft.org/schema/mule/okta-system-api" xmlns:train-details-system-api="http://www.mulesoft.org/schema/mule/train-details-system-api" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd http://www.mulesoft.org/schema/mule/my-trains-system-api http://www.mulesoft.org/schema/mule/my-trains-system-api/current/mule-my-trains-system-api.xsd http://www.mulesoft.org/schema/mule/okta-system-api http://www.mulesoft.org/schema/mule/okta-system-api/current/mule-okta-system-api.xsd http://www.mulesoft.org/schema/mule/national-rail-system-api http://www.mulesoft.org/schema/mule/national-rail-system-api/current/mule-national-rail-system-api.xsd http://www.mulesoft.org/schema/mule/train-details-system-api http://www.mulesoft.org/schema/mule/train-details-system-api/current/mule-train-details-system-api.xsd http://www.mulesoft.org/schema/mule/locations-system-api http://www.mulesoft.org/schema/mule/locations-system-api/current/mule-locations-system-api.xsd">
+    <http:listener-config name="httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="${http.port}" />
+    </http:listener-config>
+    <apikit:config name="myTrainsProcessApiConfig" api="resource::cd5bf5d6-a7c5-40f7-a8db-9f1046bbc2fd:mytrains-process-api:1.0.7:raml:zip:mytrains-process-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <configuration-properties doc:name="Configuration properties" doc:id="0bf29b65-5e29-40ac-9873-652926f1d663" file="config/mytrains.process.api.${env}.yaml" />
+    <global-property doc:name="Global Property" doc:id="35acdca0-de3f-488a-999d-373cfe046adf" name="env" value="dev" />
+    <json-logger:config name="jsonLoggerConfig" doc:name="JSON Logger Config" doc:id="af42e9d8-c599-4acc-9a95-fdf6b552f2e1" environment="${env}" />
+    <my-trains-system-api:config name="myTrainsSystemAPIConfig" doc:name="MyTrains System API Config" doc:id="ead06adb-6bd1-46a3-8e33-db86d90f3023" property_host="${mytrains.host}" property_port="${mytrains.port}" property_protocol="${mytrains.protocol}" property_basePath="${mytrains.basePath}" property_responseTimeout="100000000" />
+    <okta-system-api:config name="oktaSystemAPIConfig" doc:name="Okta System API Config" doc:id="6a8d53da-9ad4-4a8a-89c1-b6728245df11" property_host="${okta.host}" property_port="${okta.port}" property_protocol="${okta.protocol}" property_basePath="${okta.basePath}" />
+    <national-rail-system-api:config name="nationalRailSystemAPIConfig" doc:name="National Rail System API Config" doc:id="e0b6162c-51c5-4569-a87a-1b4355f7d756" property_host="${nre.host}" property_port="${nre.port}" property_protocol="${nre.protocol}" property_basePath="${nre.basePath}" property_responseTimeout="100000" />
+    <configuration doc:name="Configuration" doc:id="37542fc2-505b-4945-9a98-db92536818ad" defaultErrorHandler-ref="mytrains-process-global-error-handler" />
+    <train-details-system-api:config name="trainDetailsSystemAPIConfig" doc:name="TrainDetails System API Config" doc:id="6c9e6ef8-4e23-4bfa-bccc-45159c9321a9" property_host="${trains.host}" property_port="${trains.port}" property_protocol="${trains.protocol}" property_basePath="${trains.basePath}" />
+    <locations-system-api:config name="locationsSystemAPIConfig" doc:name="Locations System API Config" doc:id="0f716169-5839-4433-a596-c60ca83d5e1f" property_host="${location.host}" property_port="${location.port}" property_protocol="${location.protocol}" property_basePath="${location.basePath}" property_responseTimeout="100000" />
+    <error-handler name="mytrains-process-global-error-handler" doc:id="548c0e16-7f43-4710-8cb1-eda342ea543b">
+        <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e13d57b9-c10e-47c1-a44a-3d9ebff8fd85" type="MY-TRAINS-SYSTEM-API:BAD_REQUEST">
+            <set-payload value="#[&quot;MY-TRAINS-SYSTEM-API:BAD_REQUEST - &quot; ++ error.description as String]" doc:name="errorMessage" doc:id="f4ce83e4-f0c5-493c-9abc-110ed2c26307" />
+        </on-error-propagate>
+        <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="205d4b03-42fa-4a55-9784-c8419a5b4c0b" type="TRAIN-DETAILS-SYSTEM-API:BAD_REQUEST">
+            <set-payload value="#[&quot;TRAIN-DETAILS-SYSTEM-API:BAD_REQUEST - &quot; ++ error.description as String]" doc:name="errorMessage" doc:id="03017d79-735e-481b-b86b-ed845b8bcad5" />
+        </on-error-propagate>
+        <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="78adad96-7f61-493f-96cd-6666f6390f82" type="MY-TRAINS-SYSTEM-API:CONNECTIVITY">
+            <set-payload value="#[&quot;MY-TRAINS-SYSTEM-API:CONNECTIVITY - &quot; ++ error.description as String]" doc:name="errorMessage" doc:id="2e1b2c8c-5132-4458-bc75-a11d8175a7ee" />
+        </on-error-propagate>
+        <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d185dcac-8390-40c8-b102-7ade6ce1a25c" type="OKTA-SYSTEM-API:BAD_REQUEST">
+            <set-payload value="#[&quot;OKTA-SYSTEM-API:BAD_REQUEST - &quot; ++ error.description as String]" doc:name="errorMessage" doc:id="51bb0e5a-ced2-488b-abc7-913957f3f9d2" />
+        </on-error-propagate>
+        <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d84133ab-a0f3-4bd4-aa39-f433889ba5bc" type="OKTA-SYSTEM-API:CONNECTIVITY">
+            <set-payload value="#[&quot;OKTA-SYSTEM-API:CONNECTIVITY - &quot; ++ error.description as String]" doc:name="errorMessage" doc:id="6cb87fbc-e116-4f9c-b7a8-f0d41b421207" />
+        </on-error-propagate>
+        <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="850ec14a-03c5-4c38-8fb7-42f65bc3a20c">
+            <set-payload value="#[&quot;Error - &quot; ++ error.description as String]" doc:name="errorMessage" doc:id="0199f084-55bc-419c-bf46-f68cfef2fc6c" />
+        </on-error-propagate>
+    </error-handler>
+</mule>

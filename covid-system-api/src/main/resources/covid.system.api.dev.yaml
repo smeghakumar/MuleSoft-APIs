@@ -1,0 +1,13 @@
+http:
+  port: '8081'
+  host: 'backend-mock-ext-api.us-e2.cloudhub.io'
+
+mule:
+  env: 'Sandbox'
+  
+  
+  
+json.logger:
+  application:
+    name: 'covid-sys-api'
+    version: '1.0.0'

@@ -1,0 +1,101 @@
+stationList:
+  host: location-system-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: /api/locations/stations
+  responseTimeout: "10000" 
+  
+attractionSpot:
+  host: location-system-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: /api/locations/attractionspots
+  responseTimeout: "10000"
+
+nationalRail:
+  host: anypoint.mulesoft.com
+  port: "80"
+  protocol: HTTPS
+  basePath: /mocking/api/v1/sources/exchange/assets/cd5bf5d6-a7c5-40f7-a8db-9f1046bbc2fd/national-rail-system-api/1.0.2/m/service/station
+  responseTimeout: "10000"
+  
+forecast:
+  host: weather-sys-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: /api/forecast
+  responseTimeout: "10000"
+  
+nre:
+  host: national-rail-system-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: /nre/sys/api/v1/service/arrivals
+  responseTimeout: "10000"
+
+http: 
+  port: "8081"
+  
+covid:
+  host: covid-system-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: api/covid/nation
+  responseTimeout: "30000"
+  
+covidByArea:
+  host: covid-system-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: /api/covid/areaname
+  responseTimeout: "30000"
+  
+alertForId:
+  host: delay-notification-system-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: /api/alerts
+  responseTimeout: "10000"
+
+postCode:
+  host: location-system-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: /api/locations/postalCodes
+  responseTimeout: "10000"
+  
+delayLocations:
+  host: delay-notification-system-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: /api/users/locations
+  responseTimeout: "10000"
+
+delayUsers:
+  host: delay-notification-system-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: /api/users
+  responseTimeout: "10000"
+  
+delayUserIdSubscription:
+  host: delay-notification-system-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: /users/{userId}/subscriptions
+  responseTimeout: "10000"
+  
+createAlert:
+  host: delay-notification-system-api.us-e2.cloudhub.io
+  port: "80"
+  protocol: HTTP
+  basePath: subscription/alerts
+  responseTimeout: "10000"
+  
+  
+  
+email:
+  host: "smtp.gmail.com"
+  port: "587"
+  username: "njclabs.demo@gmail.com"
+  password: "Njc@1234"

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd 
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="e07c7af3-1122-4951-89a2-faa316e0e0ae" file="notification.process.api.dev.yaml" />
+	<http:request-config name="stationListRequestConfiguration" doc:name="HTTP Request configuration" doc:id="4639dfbb-ad38-4fae-8930-b8a0c91c4fdb" >
+		<http:request-connection host="${stationList.host}" port="${stationList.port}" />
+	</http:request-config>
+	 <http:request-config name="nationalRailSystemAPIConfig" doc:name="HTTP Request configuration" doc:id="18e128c4-d28c-40e4-95fd-1179ff9cfdf5" >
+		<http:request-connection host="${nationalRail.host}" port="${nationalRail.port}" />
+	</http:request-config> 
+	<http:request-config name="weatherDataConfiguration" doc:name="HTTP Request configuration" doc:id="cd17e8b2-c14a-4608-aa8d-dccc05de5d7f" >
+		<http:request-connection host="${forecast.host}" port="${forecast.port}" />
+	</http:request-config>
+	 <http:listener-config name="notificationProcessApiHtpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="${http.port}" />
+    </http:listener-config>
+    <apikit:config name="notificationProcessApiConfig" api="resource::cd5bf5d6-a7c5-40f7-a8db-9f1046bbc2fd:notification-process-api:1.0.5:raml:zip:notification-process-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<http:request-config name="covidApiconfiguration" doc:name="HTTP Request configuration" doc:id="c00d9579-1d30-48b7-9b2d-50fad425252d" >
+		<http:request-connection host="${covid.host}" port="${covid.port}" />
+	</http:request-config>
+	<http:request-config name="covidByAreaConfiguration" doc:name="HTTP Request configuration" doc:id="2ad1f696-9028-4664-a303-4f2b67c88f89" >
+		<http:request-connection host="${covidByArea.host}" port="${covidByArea.port}" />
+	</http:request-config>
+	<http:request-config name="alertForIdConfiguration" doc:name="HTTP Request configuration" doc:id="afbb75a6-bece-46b2-bb3b-3728d0802ca7" >
+		<http:request-connection host="${alertForId.host}" port="${alertForId.port}" />
+	</http:request-config>
+	<http:request-config name="attractionSpotRequestConfiguration" doc:name="HTTP Request configuration" doc:id="cc17cc40-59af-453a-8f16-e607fa80c6c4" >
+		<http:request-connection host="${attractionSpot.host}" port="${attractionSpot.port}" />
+	</http:request-config>
+	<global-property doc:name="Global Property" doc:id="d0f83103-9d16-4e7f-a304-50548d835d9a" name="mule.env" value="dev" />
+	<json-logger:config name="jsonLoggerConfig" doc:name="JSON Logger Config" doc:id="f335c4f6-c231-4ef3-b61b-2e2d4e280ea3" environment="${mule.env}" applicationName="notification-process-api" applicationVersion="1.0.0-SNAPSHOT"/>
+	<http:request-config name="postCodesConfiguration" doc:name="HTTP Request configuration" doc:id="2f6de1f5-213c-4d12-92f5-49e4a6456fc4" >
+		<http:request-connection host="${postCode.host}" port="${postCode.port}" />
+	</http:request-config>
+	<http:request-config name="delayLocationsConfiguration" doc:name="HTTP Request configuration" doc:id="cc5f41dc-78ea-41b3-8907-db170b2a2402" >
+		<http:request-connection host="${delayLocations.host}" port="${delayLocations.port}" />
+	</http:request-config>
+	<http:request-config name="usersConfiguration" doc:name="HTTP Request configuration" doc:id="7dc4c557-ff21-4d08-84c7-d40cd5fd84a8" >
+		<http:request-connection host="${delayUsers.host}" port="${delayUsers.port}" />
+	</http:request-config>
+	<http:request-config name="usersBySubIdConfiguration" doc:name="HTTP Request configuration" doc:id="e252c0ad-0141-49a1-ba6a-b9935ea90778" >
+		<http:request-connection host="${delayUserIdSubscription.host}" port="${delayUserIdSubscription.port}" />
+	</http:request-config>
+	<http:request-config name="createAlertonfiguration" doc:name="HTTP Request configuration" doc:id="0a4be63f-25c9-4f42-b118-5712850d3f65" >
+		<http:request-connection host="${createAlert.host}" port="${createAlert.port}" />
+	</http:request-config>
+	<email:smtp-config name="emailSMTPConfiguration" doc:name="Email SMTP" doc:id="16b10452-13c0-469e-a325-bd1eecebf0a3" >
+		<email:smtp-connection host="${email.host}" port="${email.port}" user="${email.username}" password="${email.password}" connectionTimeout="5000">
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	
+    
+</mule>

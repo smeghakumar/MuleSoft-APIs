@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<flow name="mytrains-user-registration-flow" doc:id="37a29f9a-6628-4a41-bbec-299f30696f80" >
+		<json-logger:logger doc:name="flowBegin" doc:id="557a7a42-c75c-4908-8103-faf27acfa5e0" config-ref="jsonLoggerConfig" message="Payload in the beginning of flow"/>
+		<db:insert doc:name="userInsert" doc:id="85300100-c37e-4bba-9363-66293f8b5ba4" config-ref="myTrainsDBConfig">
+			<db:sql ><![CDATA[INSERT INTO USER(USER_ID,FIRST_NAME,LAST_NAME,EMAIL_ID,PHONE_NUMBER,STATUS_TYPE_ID,CREATED_TIMESTAMP,UPDATED_TIMESTAMP) VALUES (:id,:firstname,:lastname,:email,:phone,:statusTypeId,:createdDatetime,:updatedDatetime)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{	
+	id: payload.userId,
+	firstname: payload.firstName,
+	lastname: payload.lastName,
+	email: payload.email, 
+	phone: payload.phone,
+	statusTypeId:1,
+	createdDatetime: payload.createdDate as DateTime as String{format: "yyyy-MM-dd HH:mm:ss"},
+	updatedDatetime: payload.updatedDate as DateTime as String{format: "yyyy-MM-dd HH:mm:ss"}
+}]]]></db:input-parameters>
+		</db:insert>
+		<json-logger:logger doc:name="flowEnd" doc:id="603303a2-f3df-4e23-987e-08576a6eab6c" config-ref="jsonLoggerConfig" message="Payload at the end of flow"/>
+	</flow>
+	<flow name="mytrains-user-retrieve-flow" doc:id="f3887531-55a0-46d1-ba02-28ecbbf84769" >
+		<json-logger:logger doc:name="flowBegin" doc:id="6ac19fd4-04ee-4996-93e2-f05d5a91be49" config-ref="jsonLoggerConfig" message="Payload in the beginning of the flow"/>
+		<db:select doc:name="retrieveUser" doc:id="f36473ca-10f6-4a89-8c93-b4fa6ecf434b" config-ref="myTrainsDBConfig">
+			<db:sql ><![CDATA[SELECT * FROM USER WHERE USER_ID = :Id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	Id: attributes.uriParams.userId
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Java to Json" doc:id="3db157d3-a079-42cf-b9da-a9f8386c2bd9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map(object) ->
+	{
+		firstName: object.FIRST_NAME,
+		lastName: object.LAST_NAME,
+		phone: object.PHONE_NUMBER,
+		email: object.EMAIL_ID
+	}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="flowEnd" doc:id="61394ba5-4cc2-4b0d-9fab-790ba51ddcc0" config-ref="jsonLoggerConfig" message="Payload at the end of the flow"/>
+	</flow>
+	<flow name="mytrains-insert-subscription-flow" doc:id="aad695be-03dc-4e31-afc4-53a6f1c53fbd" >
+		<json-logger:logger doc:name="flowBegin" doc:id="4be8d48c-5add-4c55-b9bb-a250c6c05e50" config-ref="jsonLoggerConfig" message="Payload in the start of the flow"/>
+		<db:insert doc:name="insertSubscription" doc:id="d5c5f7e0-42a6-42cc-b315-e4e6258266d5" config-ref="myTrainsDBConfig">
+			<db:sql ><![CDATA[INSERT INTO SUBSCRIPTION(USER_ID,SOURCE_LOCATION,DESTINATION_LOCATION,ADVANCE_NOTIFY_TIME_MIN,FROM_TIME,TO_TIME,STATUS_TYPE_ID,CREATION_TIMESTAMP,UPDATED_TIMESTAMP) VALUES (:userID,:orgin,:destination,:notificationTime,:fromTime,:toTime,1,:createdDatetime,:updatedDatetime)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	userID: message.attributes.uriParams.userId,	
+	orgin: message.payload.sourceLocationCode,
+	destination: message.payload.destinationLocationCode,
+	fromTime: message.payload.fromTime, 
+	toTime: message.payload.toTime,
+	notificationTime: message.payload.advanceNotificationMins, 
+	createdDatetime: now() as DateTime as String{format: "yyyy-MM-dd HH:mm:ss"},
+	updatedDatetime: now() as DateTime as String{format: "yyyy-MM-dd HH:mm:ss"}
+	
+}]]]></db:input-parameters>
+		</db:insert>
+		<json-logger:logger doc:name="flowEnd" doc:id="62c9806e-644e-4d3a-aad1-60679c995127" config-ref="jsonLoggerConfig" message="Payload at the end of the flow"/>
+	</flow>
+	<flow name="mytrains-retrieve-subscription-flow" doc:id="f995545f-b871-42e5-9b52-95264e946982" >
+		<json-logger:logger doc:name="flowBegin" doc:id="30679847-8253-4913-beb0-74fdbae259f6" config-ref="jsonLoggerConfig" message="Payload in the start of flow"/>
+		<db:select doc:name="retrieveSubscriptions" doc:id="01f73f59-7c64-49c6-8280-3620eb28cbe6" config-ref="myTrainsDBConfig">
+			<db:sql ><![CDATA[SELECT * FROM SUBSCRIPTION WHERE USER_ID = :id AND STATUS_TYPE_ID = 1]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: attributes.uriParams.userId
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Java to Json" doc:id="b575ad71-b07e-4e92-8edc-c8f332b98062" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map (item) -> {
+	sourceLocationCode: item.SOURCE_LOCATION,
+	destinationLocationCode: item.DESTINATION_LOCATION,
+	fromTime: item.FROM_TIME,
+	toTime: item.TO_TIME, 
+	advanceNotificationMins: item.ADVANCE_NOTIFY_TIME_MIN	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="flowEnd" doc:id="87280138-0c09-4402-b142-3ca085ef0a89" config-ref="jsonLoggerConfig" message="Payload at the end of flow"/>
+	</flow>
+	<flow name="mytrains-retrieve-subscription-bysubid-flow" doc:id="1ed3c48c-6ea1-40a8-b74f-27234b41ce36" >
+		<json-logger:logger doc:name="flowBegin" doc:id="a0937d1e-6ec5-4354-8137-1a983f7fb8c0" config-ref="jsonLoggerConfig" message="Payload at the start of the flow"/>
+		<db:select doc:name="retrieveSubscription" doc:id="e9e5ea19-3a30-4f9c-a80c-2f4f12dcc715" config-ref="myTrainsDBConfig">
+			<db:sql ><![CDATA[SELECT * FROM SUBSCRIPTION WHERE USER_ID = :id AND SUBSCRIPTION_ID = :sid AND STATUS_TYPE_ID = 1]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: attributes.uriParams.userId,
+	sid: attributes.uriParams.subscriptionId
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Java to Json" doc:id="238f1f7a-0b0c-41ca-a563-ca7fb3b4bcaf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="flowEnd" doc:id="9a6cada3-4329-4cb4-8794-245abb6a056a" config-ref="jsonLoggerConfig" message="Payload at the end of the flow"/>
+	</flow>
+	<flow name="mytrains-user-unsubscribe-flow" doc:id="682841f6-4b13-43c5-9d2b-5fa83efb254f" >
+		<json-logger:logger doc:name="flowBegin" doc:id="0e77128b-dbae-4d2d-b7fb-6231561e6296" config-ref="jsonLoggerConfig" message="Payload at the start of flow"/>
+		<db:update doc:name="UnSubscribe" doc:id="fb803662-5732-4dae-8054-59509f34b40d" config-ref="myTrainsDBConfig">
+			<db:sql ><![CDATA[UPDATE SUBSCRIPTION SET STATUS_TYPE_ID = 2 WHERE SUBSCRIPTION_ID=:subid]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	subid: attributes.uriParams.subscriptionId
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Java to Json" doc:id="3fdd19f4-880a-4b97-85ce-ad2579401f9f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Unsubscribed Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="flowEnd" doc:id="db3a6a48-ea2d-4850-82ca-29e06cd35bb5" config-ref="jsonLoggerConfig" message="Payload at the end of flow"/>
+	</flow>
+	<flow name="mytrains-retrieve-userid-flow" doc:id="b026de51-089c-44ae-9a29-1659992ad37b" >
+		<json-logger:logger doc:name="flowBegin" doc:id="f86a79a3-b773-49a9-b77a-673593a4fe9b" config-ref="jsonLoggerConfig" message="Payload in the start of the flow"/>
+		<db:select doc:name="retrieveUserId" doc:id="e7fa9969-2b2a-44f2-a5f3-856716311f48" config-ref="myTrainsDBConfig">
+			<db:sql ><![CDATA[SELECT USER_ID FROM USER WHERE EMAIL_ID = :username]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	username: attributes.queryParams.username
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="940b36ef-35f1-4964-898b-60a25f2c0130" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+userId: payload[0].USER_ID]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="4ed7fb67-f871-46a1-a379-fb9adb2560e9" message="#[payload]"/>
+		<json-logger:logger doc:name="flowEnd" doc:id="f74d07be-3373-4630-9577-63f369b58e9d" config-ref="jsonLoggerConfig" message="Payload in the end of the flow"/>
+	</flow>
+</mule>

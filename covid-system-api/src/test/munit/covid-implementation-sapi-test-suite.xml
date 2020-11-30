@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<munit:config name="apios-anypoint-jenkins-sapi-test-suite.xml" />
+	<munit:test name="covid-interface-sapi-error-bad-request" doc:id="aaee536e-e63a-467c-a1b9-bf7cf9d45f46" description="Test" ignore="true">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="d2e6b1af-a024-4581-b2e5-0e4bde138204" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="covid-system-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="3b036b63-5e40-496b-b862-ab7bb6a279b8" >
+				<flow-ref doc:name="Flow-ref to covid-interface-bad request" doc:id="ef60df02-d1c9-4347-b316-2eaa7c9690f9" name="covid-system-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="483a5ccc-528f-4940-9f9a-7fc473060353" >
+						<logger level="INFO" doc:name="errorMessage" doc:id="306b396d-39fe-435c-8160-68a58c861c17" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="c8ba0d21-94c2-42a9-a88a-b1dd932cee28" actual="#[payload.message]" expected="Bad request" message="Invalid Payload"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="covid-interface-sapi-error-main-not-found" doc:id="2cb4e6fe-91e7-46af-8b19-64f59038f8b5" description="Test" ignore="true">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="26dd3a3d-15b0-4989-a78c-4ae5401f7761" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="covid-system-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="1374b641-e7bc-4b1a-bc76-ddf4329b1919" >
+				<flow-ref doc:name="Flow-ref to covid-interface-sapi-error-main-not-found" doc:id="1627c626-0a98-4bdc-92f7-c3d4e1faff5f" name="covid-system-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="05d9b9f3-8072-4913-b110-a980e0f0896e" >
+						<logger level="INFO" doc:name="errorMessage" doc:id="75350ad6-7eca-4929-9873-02a07b7729b8" message="#[payload]" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="999d15df-924f-43e3-9217-d43611b6f321" actual="#[payload.message]" expected="Resource not found" message="Invalid Payload" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="covid-interface-sapi-error-method-not-allowed" doc:id="0d4e6651-54cd-4f80-883d-efe051b197a4" ignore="true">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="2d7c645a-f386-4a12-996b-bd6d677b342d" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="covid-system-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="53631d3d-2539-46a2-ae4d-369e4723c146" >
+				<flow-ref doc:name="Flow-ref to covid-interface-sapi-error-method-not-allowed" doc:id="6b295e31-3e67-46c6-a3d0-cfc00882adcc" name="covid-system-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="fe29305d-b544-4ad9-a3be-6c9e4223f8c5" >
+						<logger level="INFO" doc:name="errorMessage" doc:id="c4df7b24-c3a5-4fe0-b675-a4f31161cdaa" message="#[payload]" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="ad70d238-679c-4bb2-8e56-24cfb8550fcb" actual="#[payload.message]" expected="Method not allowed" message="Invalid Payload" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="covid-interface-sapi-error-test-not-acceptable" doc:id="34aaff9d-a879-4105-b306-cc89a193cef7" ignore="true">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="8df20d86-c237-46b3-a3d2-026a715f4428" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="covid-system-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="9a494d67-df12-412a-a766-485d3929c8ac" >
+				<flow-ref doc:name="Flow-ref tointerface-sapi-error-test-not-acceptable" doc:id="3ee878b5-489c-4677-be79-0940f49c05ab" name="covid-system-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2e5b5f83-9d3a-48ad-b3f0-2c78755bd5bf" >
+						<logger level="INFO" doc:name="errorMessage" doc:id="558a9fa3-2c0f-4574-8598-43e75aeaa523" message="#[payload]" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="e70daf6c-c8a3-490f-a965-1ff9e3c1d9ec" actual="#[payload.message]" expected="Not acceptable" message="Invalid Payload" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="covid-interface-sapi-error-unsupported-mediatype" doc:id="c0d16179-1420-49d5-89c5-5e06bbe2fafb" ignore="true">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="11c2ac36-e681-4a58-9cfe-8ca06a22d7b1" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="covid-system-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="3ffe77d2-ac3a-4a96-9906-7bc945c7239c" >
+				<flow-ref doc:name="Flow-ref to covid-interface-sapi-error-unsupported-mediatype" doc:id="36030189-ea90-4b48-94b3-5e30edc08a6e" name="covid-system-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="47013b3e-27d5-48fb-b48c-eb7e9cbcded0" >
+						<logger level="INFO" doc:name="errorMessage" doc:id="9e4726a9-40c1-4f33-8174-852805fa179e" message="#[payload]" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="c98ddd47-bd26-45d5-a591-837cfbaf9d83" actual="#[payload.message]" expected="Unsupported media type" message="Invalid Payload" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="covid-interface-sapi-error-test-not-implemented" doc:id="a3186790-ce0f-49a5-abb2-cb541437782b" ignore="true">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="5b1b141a-34d9-4e5c-a5f1-3d5851ef7eed" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="covid-system-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_IMPLEMENTED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="6589b981-90be-4353-9866-596f93a25d8f" >
+				<flow-ref doc:name="Flow-ref to covid-interface-sapi-error-test-not-implemented" doc:id="367fa76a-17cc-40ff-8d15-84ff552b6336" name="covid-system-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="1d353b99-023f-43d3-a8aa-1340cef0ad2c" >
+						<logger level="INFO" doc:name="errorMessage" doc:id="2f4d701e-3245-4d75-aa48-6b5f0146384a" message="#[payload]" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="4078a2a1-214a-4884-be98-1c0af9610683" actual="#[payload.message]" expected="Not Implemented" message="Invalid Payload" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="covid-interface-sapi-error-console-test" doc:id="489dd9ba-adb2-4d9a-a922-9603d1f734d3" description="Test" ignore="true">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="cdc6b235-6a03-4c16-9364-7138b6b34581" processor="apikit:console">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="covid-system-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="00384016-8547-4a73-ad11-050ba59ba225" >
+				<flow-ref doc:name="Flow-ref to covid-interface-sapi-error-console-test" doc:id="eeae3f52-1698-4273-b8ea-84c5f2adee1d" name="covid-system-api-console" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="Error Continue" doc:id="c96be555-bfae-4236-a686-5754a54ccf11" >
+						<logger level="INFO" doc:name="errorMessage" doc:id="8bfd8ba9-abd4-4e32-9a53-0d558c9c14c6" message="#[payload]" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="c0137768-75c2-43d7-b27f-1ad86e41a631" actual="#[payload.message]" expected="Resource not found" message="Invalid payload "/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="covid-implementation-sapi-test-suiteTest" doc:id="6650377b-8bfe-403e-8f76-da4ff52082fd">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="f761b9a3-62ae-47fd-9209-81e18d8b00de" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Request to get areawise covid details" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="689531f1-30bd-4b90-9388-8d3e734359eb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="5399f754-7bf4-4226-a657-5232f54e28fe" >
+				<flow-ref doc:name="Flow Reference" doc:id="129e8b87-6e07-4eb3-9d01-6e2162424512" name="covid-regionwise"/>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="e7e8b840-880e-4155-b641-fcf935c2ed08" >
+						<logger level="INFO" doc:name="Logger" doc:id="63c673f3-728b-4864-8a1e-21eecd01efb5" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b17558eb-e807-47ba-adef-76f98ef50c48" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="covid-implementation-sapi-test-suite-covid-nationwiseTest" doc:id="08688c56-5769-4dce-98c0-f35aa35a77eb" description="Test" ignore="true">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to covid-nationwise" doc:id="e332fdef-a308-480a-ae38-16adcc067df5" name="covid-nationwise"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="7bc39a42-50d0-4dd9-b7e9-d3ce3dfe4dd2" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="covid-implementation-sapi-test-suite-covid-regionwiseTest" doc:id="52bffd41-316c-40de-8928-a47e5f1dbad3" description="Test" ignore="true">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="e9ef51d4-02e7-491d-8981-cc80da1fc95a" >
+				<munit:attributes value="#[attributes.queryParams.location]" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to covid-regionwise" doc:id="c62eadc3-1cb7-4b76-8983-75d48589ef68" name="covid-regionwise"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="09a0c29c-004f-4601-9440-0511362da18c" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+
+</mule>

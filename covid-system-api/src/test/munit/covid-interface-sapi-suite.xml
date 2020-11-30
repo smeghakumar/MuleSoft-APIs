@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="covid-interface-sapi-suite.xml" />
+	<munit:test name="hackathon-console-test" doc:id="f40ab609-1a65-4275-ac03-45f655cbfe48">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Console" doc:id="c26e0be6-214c-42bb-a09b-6b8f47f0280d" processor="apikit:console">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="covid-system-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://hackathonconsoletest\mock_payload.dwl')]" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://hackathonconsoletest\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://hackathonconsoletest\mock_variable_.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://hackathonconsoletest\mock_variable_1.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="74f98fef-ea97-4051-b781-982edbab0592" >
+				<munit:payload value="#[readUrl('classpath://hackathonconsoletest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://hackathonconsoletest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to hackathon-console" doc:id="0d813aea-7455-4e32-9f61-f1e51a5141d3" name="covid-system-api-console"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="1a826f8d-2f99-48bc-9894-5e758c7bd78c" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import hackathonconsoletest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="covid-implementation-sapi-suiteTest" doc:id="ad9c0555-ea7e-4de5-9f86-bd20d8870ef6">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="e0ea2882-7623-43fc-96dc-5fd604ed0fbd" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Request to get areawise covid details" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="689531f1-30bd-4b90-9388-8d3e734359eb" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="3530c11f-bdde-4109-9501-7bd9a984b9af" >
+				<flow-ref doc:name="Flow Reference" doc:id="f4b761cb-106b-4b22-aeb1-4d6287c13719" name="covid-regionwise"/>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a4e84a21-b13b-4b1f-8f0c-d1e386302d22" >
+						<logger level="INFO" doc:name="Logger" doc:id="bc446389-e046-40ad-913c-795f74f9050f" message="#[payload]"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="353e8792-1a2a-4d72-8bad-31f93e50f64f" is="#[MunitTools::notNullValue()]" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="get:\covid\areaname:hackathon-config-test" doc:id="cf5e3d24-398a-4a6f-bf25-a01ef1c0953d">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Flow Reference" doc:id="76e7aa1e-aeb8-4da7-aece-62d2b8f3e06b" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="covid-regionwise" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="be0a639d-932e-49d7-8a9f-105197306728" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://getcovidareanamehackathonconfigtest\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getcovidareanamehackathonconfigtest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="1cdd0c1a-674a-4495-bdbd-d8d73f7a31ad" >
+				<munit:payload value="#[readUrl('classpath://getcovidareanamehackathonconfigtest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://getcovidareanamehackathonconfigtest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getcovidareanamehackathonconfigtest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\covid\areaname:hackathon-config" doc:id="35ce000a-066b-4a54-a3ca-0d29bf3672dc" name="get:\covid\areaname:covid-system-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="0aea4ceb-0376-4657-82bd-b2557cc2061f" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getcovidareanamehackathonconfigtest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="get:\covid:hackathon-config-test" doc:id="77c2e7a3-e50a-4925-b9c4-8fcfd72230b1">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Flow Reference" doc:id="40f199e2-0031-499f-9cb5-8673152b0935" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="covid-nationwise" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="4f804416-03b9-4fc9-b9b6-c1a96d7ae0d3" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://getcovidhackathonconfigtest\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getcovidhackathonconfigtest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="160684e5-9e5b-44b9-adc0-79dee74a24e0" >
+				<munit:payload value="#[readUrl('classpath://getcovidhackathonconfigtest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://getcovidhackathonconfigtest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getcovidhackathonconfigtest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\covid:hackathon-config" doc:id="ff698e8e-a0e8-4ae9-a7f1-d51abe250823" name="get:\covid\nation:covid-system-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="c58aa367-47b5-4884-a540-6d45be55465d" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getcovidhackathonconfigtest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

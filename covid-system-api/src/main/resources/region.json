@@ -1,0 +1,32 @@
+{
+    "length": 2500,
+    "maxPageLimit": 2500,
+    "data": [
+        {
+            "date": "2020-11-24",
+            "areaName": "East Midlands",
+            "areaCode": "E12000004",
+            "daily": 28,
+            "cumulative": 131458
+        },
+        {
+            "date": "2020-11-23",
+            "areaName": "East Midlands",
+            "areaCode": "E12000004",
+            "daily": 1049,
+            "cumulative": 131430
+        },
+        {
+            "date": "2020-11-22",
+            "areaName": "East Midlands",
+            "areaCode": "E12000004",
+            "daily": 986,
+            "cumulative": 130381
+        },
+        {
+            "date": "2020-11-21",
+            "areaName": "East Midlands",
+            "areaCode": "E12000004",
+            "daily": 1079,
+            "cumulative": 129395
+        }]}

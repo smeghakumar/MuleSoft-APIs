@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="6a1fa407-81ec-40f9-a32d-e86a60d2947c" basePath="/api">
+		<http:request-connection host="${http.host}" port="80"/>
+	</http:request-config>
+	<configuration doc:name="Configuration" doc:id="37989e5e-d7fe-44fb-8e9f-e28e0c92d7a3" defaultErrorHandler-ref="covid-global-sapiError_Handler"/>
+	<configuration-properties doc:name="Configuration properties" doc:id="3d5fa4c5-d96e-4f66-8393-d331163d681f" file="covid.system.api.dev.yaml" />
+	<json-logger:config name="JSON_Logger_Config" doc:name="JSON Logger Config" doc:id="17861940-a980-4cd8-81cc-8b5a8231e7f4" environment="${mule.env}" />
+	<error-handler name="covid-global-sapiError_Handler" doc:id="f40b1d52-005d-402b-a848-130a8ef744e6" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8f75e21d-34ef-4ea5-91b3-52d06a473a49" type="CONNECTIVITY">
+			<set-variable value="504" doc:name="Set Variable" doc:id="8ab3378b-23e4-4d08-b98f-5675959950a1" variableName="httpStatus"/>
+			<flow-ref doc:name="Flow Reference" doc:id="1a24054f-a483-46ec-b445-4b021d2345d8" name="generate_error_response"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3245b24e-2700-41e0-bd06-7e3b8eae9778" type="MULE:CLIENT_SECURITY">
+			<set-variable value="500" doc:name="Set Variable" doc:id="5a29b3d7-319b-4321-bd7e-348f5ae01f5e" variableName="httpStatus"/>
+			<flow-ref doc:name="Flow Reference" doc:id="8d0645e7-4447-428e-97b7-b195a642cf7c" name="generate_error_response"/>
+		</on-error-propagate>
+	</error-handler>
+	<sub-flow name="generate_error_response" doc:id="133b77bb-8293-455a-9194-74f05a0fc677" >
+		<ee:transform doc:name="Transform Message" doc:id="e53b70ec-2c38-47b6-b6d7-dc9aaf2fe1f5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code": vars.httpStatus,
+	"type": error.errorType.identifier,
+	"message":error.description
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f283d2ee-632b-4803-830a-1bdabe3572bb" message='"error"'/>
+	</sub-flow>
+</mule>

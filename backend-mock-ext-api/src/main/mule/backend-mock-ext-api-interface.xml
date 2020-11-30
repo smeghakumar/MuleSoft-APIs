@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+    <http:listener-config name="backend-mock-ext-api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="backend-mock-ext-api-config" api="resource::cd5bf5d6-a7c5-40f7-a8db-9f1046bbc2fd:backend-mock-ext-api:1.0.10:raml:zip:backend-mock-ext-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="backend-mock-ext-api-main">
+        <http:listener config-ref="backend-mock-ext-api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="backend-mock-ext-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="backend-mock-ext-api-console">
+        <http:listener config-ref="backend-mock-ext-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="backend-mock-ext-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\areaname:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="2c7bf8a4-2886-4159-9a48-30af3425310e" name="backend-mock-ext-api-implementationFlow-areaName" />
+    </flow>
+    <flow name="get:\nation:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="4ba97718-c1fa-416d-ab0e-091d4e995c62" name="backend-mock-ext-api-implementationFlow-nation" />
+    </flow>
+    <flow name="get:\v2\places:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="9c6450c7-c336-420f-b740-88b25b0a68bd" name="backend-mock-ext-api-implementationFlow-places" />
+    </flow>
+    <flow name="get:\v1\geocode\search:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="3fe9a6dd-d1be-485d-b8d9-611ce5da63f3" name="backend-mock-ext-api-implementationFlow-geocodeSerach" />
+    </flow>
+    <flow name="get:\nrs:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="cd9d7b6b-4454-4ee8-96f9-a065ae4b212c" name="backend-mock-ext-api-implementationFlow-nrs" />
+    </flow>
+    <flow name="get:\users\(userId):backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="62c626be-7f19-4be7-bbf4-67b5265931b8" name="backend-mock-ext-api-implementationFlow-user-userid" />
+    </flow>
+    <flow name="get:\forecast:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="4ee4360d-331e-4140-b263-ebb34971dde6" name="backend-mock-ext-api-implementationFlow-forecast" />
+    </flow>
+    <flow name="post:\oauth2\default\v1\token:application\x-www-form-urlencoded:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="a5766f5f-b22a-42a3-be42-2dc55f6393f5" name="backend-mock-ext-api-implementationFlow-token" />
+    </flow>
+    <flow name="post:\authn:application\json:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="350b4af8-f9be-4e55-a6bf-2d2923ef78cc" name="backend-mock-ext-api-implementationFlow-authn" />
+    </flow>
+    <flow name="post:\users:application\json:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="8c1481b9-82f1-4f54-a00a-c3c256f699ff" name="backend-mock-ext-api-implementationFlow-post-users" />
+    </flow>
+    <flow name="get:\stations:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="259b13d5-6335-4b4a-92a5-5429b743aff9" name="backend-mock-ext-api-implementationFlow-stations" />
+    </flow>
+    <flow name="post:\users\(userId)\credentials\forgot_password:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="8c40bc01-87a0-4099-840a-be7e99dd893e" name="backend-mock-ext-api-implementationFlow-forgot-password" />
+    </flow>
+    <flow name="get:\v3\uk\public\journey:backend-mock-ext-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="f64b5640-5bd4-4156-b527-353a1fa66c56" name="backend-mock-ext-api-implementationFlow-public-journey"/>
+    </flow>
+</mule>

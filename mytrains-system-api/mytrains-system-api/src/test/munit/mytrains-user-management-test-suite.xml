@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="mytrains-user-management-test-suite.xml" />
+	<munit:test name="mytrains-user-registration-positive-flow" doc:id="bf439960-d1cd-4e35-b098-9c08572dd7d3" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="inputPayload" doc:id="7dd79802-e51a-4b0f-9aa7-43837a9db2e7" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://examples/register-user-input.dwl')]" mediaType="application/json" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="mockInsertUser" doc:id="09805917-68d4-4602-a6c7-c7f805d4e4ca" processor="db:insert">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="userInsert" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="85300100-c37e-4bba-9363-66293f8b5ba4" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-user-registration-flow" doc:id="1abb6d4f-15db-4f24-abb5-8b196143cbb6" name="mytrains-user-registration-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="50d80ae5-d1b7-4062-87e4-d2ed664eb39d" is="#[MunitTools::notNullValue()]" message="Payload cannot be null" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-user-retrieve-flow-positive-test" doc:id="5a3fd89a-7ce4-4af8-81ff-77241442f3a0" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="mockRetrieveUser" doc:id="517a9ecf-8434-4c56-bed7-85f9a4939ae0" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="retrieveUser" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="f36473ca-10f6-4a89-8c93-b4fa6ecf434b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- readUrl('classpath://examples/retrieve-user-mock-output.dwl')]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-user-retrieve-flow" doc:id="d79bb9c7-31c6-4fd6-8381-227e9d5b7165" name="mytrains-user-retrieve-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="1b3db657-07a6-41cd-92b3-9a9570d24a5a" actual="#[payload]" expected="#[readUrl('classpath://examples/retrieve-user-output.dwl')]" message="Invalid Payload"/>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="439b02cf-6e57-4a95-a859-0000978836c5" is="#[MunitTools::notNullValue()]" message="Payload cannot be null" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-insert-subscription-flow-postive-test" doc:id="62244d66-cde3-4ae7-8b79-8f0eb3c26d15" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="inputPayload" doc:id="7bc9944e-24f2-488f-bc54-b3ba01239b65" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://examples/insert-subscription-input.dwl')]" mediaType="application/json" />
+				<munit:attributes value="#[{uriParams:{'userId': &quot;id2344561x46&quot;}}]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="mockInsertSubscription" doc:id="fb11cdc6-8c38-43ce-a7d3-ddf3f3162219" processor="db:insert">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="insertSubscription" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="d5c5f7e0-42a6-42cc-b315-e4e6258266d5" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-insert-subscription-flow" doc:id="439afb18-0aba-4214-8ed8-9e5dce65e771" name="mytrains-insert-subscription-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="d99e7cd6-4de7-4268-bdf5-ba34e8c73332" is="#[MunitTools::notNullValue()]" message="Payload cannot be null" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-user-unsubscribe-flow-positive-test" doc:id="a1dc3435-4523-4cc8-be3e-bb44b8645724" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="attributes" doc:id="ffb572e9-86e0-4e15-8194-f9d9d6a68a50" >
+				<munit:attributes value="#[{uriParams:{'userId': &quot;id2344561x46&quot;, &quot;subscriptionId&quot;:  5}}]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="mockUpdateSubscription" doc:id="b4db9507-0694-44b9-aae1-8a448f6876bf" processor="db:update">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="UnSubscribe" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="fb803662-5732-4dae-8054-59509f34b40d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-user-unsubscribe-flow" doc:id="a50d0d95-acb6-4748-95a8-0c568905910f" name="mytrains-user-unsubscribe-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="170f3367-1d3e-4e6b-927a-afba179deeba" actual="#[payload.message]" expected="Unsubscribed Successfully" message="Invalid Payload"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-retrieve-subscription-bysubid-flow-positive-test" doc:id="c9c7bbe7-80b4-4959-8f1b-1b9e4b6c5018" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="attributes" doc:id="e77ef0fd-7583-4596-a41b-e9886e387652">
+				<munit:attributes value="#[{uriParams:{'userId': &quot;id2344561x46&quot;, &quot;subscriptionId&quot;:  5}}]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="mockRetrieveSubscription" doc:id="a55b6af8-83e2-4961-a5bc-fac113681f6d" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="retrieveSubscription" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="e9e5ea19-3a30-4f9c-a80c-2f4f12dcc715" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- readUrl('classpath://examples/retrieve-subscription-mock.dwl')]" mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-retrieve-subscription-bysubid-flow" doc:id="ccfe4524-22d4-4727-96f0-7dad06b313cb" name="mytrains-retrieve-subscription-bysubid-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="a37d8fbe-4409-4188-b3d8-71195e8b5e64" is="#[MunitTools::notNullValue()]" message="Payload cannot be null" expression="#[payload]"/>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="db4a3b9c-50aa-47f1-b813-2586d3dee9db" actual="#[payload]" expected="#[readUrl('classpath://examples/retrieve-subscription-output.dwl')]" message="Invalid Payload"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-retrieve-subscription-flow-positive-test" doc:id="5add8128-68d9-49ae-b34b-c3ee2d678b2f" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="attributes" doc:id="ca0dd68f-b119-4b54-8bdc-74c90548994e" >
+				<munit:attributes value="#[{uriParams:{'userId': &quot;id2344561x46&quot;, &quot;subscriptionId&quot;:  5}}]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="mockRetrieveSubscriptions" doc:id="f4ff2655-e11a-40f9-9e06-93c3a722e0fc" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="retrieveSubscriptions" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="01f73f59-7c64-49c6-8280-3620eb28cbe6" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java --- readUrl('classpath://examples/retrieve-allsubscription-mock.dwl')]" mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-retrieve-subscription-flow" doc:id="91afadc1-3555-4fba-bda9-ed56622328b0" name="mytrains-retrieve-subscription-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="89e7e5d0-e67b-4a21-a5c6-50957b9b5f9e" is="#[MunitTools::notNullValue()]" message="Payload cannot be null" expression="#[payload]"/>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="a8d4656a-204d-41b0-b183-86f49a1c0ed7" actual="#[payload]" expected="#[readUrl('classpath://examples/retrieve-allsubscription-output.dwl')]" message="Invalid Payload"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-user-registration-flow-negative-test" doc:id="349d44e2-39ef-403e-9b5c-31c08359dd57" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="inputPayload" doc:id="f47cdbb2-735b-42d8-bb09-dfcf41df2179">
+				<munit:payload value="#[output application/json --- readUrl('classpath://examples/register-user-input.dwl')]" mediaType="application/json" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="mockInsertUser" doc:id="c5dd6a4f-90ab-41ef-ba2f-8ef90cbc4bd1" processor="db:insert" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="userInsert" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="85300100-c37e-4bba-9363-66293f8b5ba4" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="DB:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="d97d453e-5571-4bfb-a3ad-5e5419db9830" >
+				<flow-ref doc:name="Flow-ref to mytrains-user-registration-flow" doc:id="9cd9b7ff-6ca1-42a2-9874-4eb6c6e311e0" name="mytrains-user-registration-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a2cb2dde-77ba-43f2-b681-031666105ff7" type="DB:CONNECTIVITY">
+						<logger level="INFO" doc:name="error" doc:id="67b0b91c-7f3a-43b6-959f-44ea4954741e" message="Error Occured"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="44d6494f-6f21-4924-bc35-0b0299c303a9" actual="#[payload]" expected="DB:CONNEXTIVITY - " message="Invalid Payload"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-user-retrieve-flow-negative-test" doc:id="4c5d2d96-e883-4728-9f99-702f56b3f708" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="mockRetrieveUser" doc:id="f9cde927-693d-4b1b-995b-f3c6d8e59075" processor="db:select" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="retrieveUser" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="f36473ca-10f6-4a89-8c93-b4fa6ecf434b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="DB:BAD_SQL_SYNTAX" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="1ffbb228-cd8f-4a42-a3c1-95ccc8741d53" >
+				<flow-ref doc:name="Flow-ref to mytrains-user-retrieve-flow" doc:id="f66a55e8-2a00-4283-b190-66f1dd21bbc1" name="mytrains-user-retrieve-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2983fae3-4da7-4e85-9f2f-33cfe70f5806" type="DB:BAD_SQL_SYNTAX">
+						<logger level="INFO" doc:name="error" doc:id="756cdfd6-9f35-45bc-ab73-213db2b44b81" message="Error Occured" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="464315e4-e6cc-4b0f-9c33-ca4219ebb23b" actual="#[payload]" expected="DB:BAD_SQL_SYNTAX - " message="Invalid Payload"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-insert-subscription-flow-negative-test" doc:id="9fb74f65-46a9-41d6-8652-6243a0e3426c" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="inputPayload" doc:id="4d27f435-31aa-4eab-a66c-a2f8b1e3b3a0">
+				<munit:payload value="#[output application/json --- readUrl('classpath://examples/insert-subscription-input.dwl')]" mediaType="application/json" />
+				<munit:attributes value="#[{uriParams:{'userId': &quot;id2344561x46&quot;}}]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="mockInsertSubscription" doc:id="05e14741-2eb8-48d7-97b4-1449bf74b085" processor="db:insert" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="insertSubscription" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="d5c5f7e0-42a6-42cc-b315-e4e6258266d5" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="DB:QUERY_EXECUTION" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="2ab292ac-599d-443b-8981-52ad48735238" >
+				<flow-ref doc:name="Flow-ref to mytrains-insert-subscription-flow" doc:id="8bce12ac-5f46-407e-92fa-20636aee2adc" name="mytrains-insert-subscription-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d5952f6e-fbdf-435d-b9bc-4961bc06e23c" type="DB:QUERY_EXECUTION">
+						<logger level="INFO" doc:name="error" doc:id="798fbe26-f615-40af-93a9-bb7e2dae4aa3" message="Error Occured" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="ecfe2d8c-8e46-4d04-90d6-71c2f8b8c21b" actual="#[payload]" expected="Error - " message="Invalid Payload" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="-mytrains-retrieve-subscription-flow-negative-test" doc:id="fc9d1f47-829f-4c14-a15b-a83ad91d2c12" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="attributes" doc:id="185e69fb-4afb-4e3c-9e5c-1a99e1588ebb">
+				<munit:attributes value="#[{uriParams:{'userId': &quot;id2344561x46&quot;, &quot;subscriptionId&quot;:  5}}]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="mockRetrieveSubscriptions" doc:id="b3b3fc7e-c9a5-40ad-b3b3-a0b05cf55b26" processor="db:select" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="retrieveSubscriptions" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="01f73f59-7c64-49c6-8280-3620eb28cbe6" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="DB:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="ba05cf89-75dc-46fd-8e11-1fb8f364e417" >
+				<flow-ref doc:name="Flow-ref to mytrains-retrieve-subscription-flow" doc:id="f41a6bf0-11fc-44f9-aa1d-b0f8c6abb145" name="mytrains-retrieve-subscription-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="f080dabb-18e0-4754-8077-46e274912259" >
+						<logger level="INFO" doc:name="Logger" doc:id="7bba07a4-e8c9-4eb9-b804-9968cca2046b" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="cfd3b3cd-5256-4d7d-9103-27a1d6ba9949" actual="#[payload]" expected="DB:CONNEXTIVITY - " message="Invalid Payload" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-retrieve-subscription-bysubid-flow-negative-test" doc:id="5fc045a2-f845-4395-bf21-5fa05b14f796" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="attributes" doc:id="36f10f8e-94db-405c-ba20-2d0dcd37147a" >
+				<munit:attributes value="#[{uriParams:{'userId': &quot;id2344561x46&quot;, &quot;subscriptionId&quot;: 5}}]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="mockRetrieveSubscription" doc:id="6ba3c941-969c-4b23-ad56-290209fe0041" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="retrieveSubscription" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="e9e5ea19-3a30-4f9c-a80c-2f4f12dcc715" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="DB:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="d51a5997-b950-40e8-a8fd-2b0cd7320b58" >
+				<flow-ref doc:name="Flow-ref to mytrains-retrieve-subscription-bysubid-flow" doc:id="a4b93b70-929a-412f-bc68-11bab0308f92" name="mytrains-retrieve-subscription-bysubid-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="bdb759f9-e319-4bd8-8624-717d0bca533c" >
+						<logger level="INFO" doc:name="Logger" doc:id="5d66e912-23e3-45fc-8c10-121a1a732547" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="b48496df-4c03-47da-90b5-5b235b0c9190" actual="#[payload]" expected="DB:CONNEXTIVITY - " message="Invalid Payload" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-user-unsubscribe-flow-negative-test" doc:id="488dd063-b531-4396-9d0f-b1def33959cd" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="attributes" doc:id="c4e07453-70c7-42c5-9e7e-fc37c3637158" >
+				<munit:attributes value="#[{uriParams:{'id': &quot;id2344561x46&quot;, &quot;subid&quot;:  5}}]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="mockUpdateSubscription" doc:id="3b425ea5-db45-4228-8c6b-d37f1e8f179f" processor="db:update">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="UnSubscribe" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="fb803662-5732-4dae-8054-59509f34b40d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="DB:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="7a437c80-ded6-4199-a114-22421b5c9583" >
+				<flow-ref doc:name="Flow-ref to mytrains-user-unsubscribe-flow" doc:id="eaa3f1ae-10f0-46e1-8c11-e57dd1d3447b" name="mytrains-user-unsubscribe-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="f81e5027-a38c-4f74-bbe5-dd760e875a45" >
+						<logger level="INFO" doc:name="error" doc:id="13a38ddc-cf07-40be-9654-3d54fa4c5280" message="Error occured"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="a4b43d2a-e2a5-47bb-8831-6bb11993a3df" actual="#[payload]" expected="DB:CONNEXTIVITY - " message="Invalid Payload" />
+		</munit:validation>
+	</munit:test>
+
+</mule>

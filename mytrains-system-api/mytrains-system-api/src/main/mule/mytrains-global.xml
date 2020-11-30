@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+    <http:listener-config name="httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="myTrainsSystemApiConfig" api="resource::cd5bf5d6-a7c5-40f7-a8db-9f1046bbc2fd:mytrains-system-api:1.0.9:raml:zip:mytrains-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <db:config name="myTrainsDBConfig" doc:name="Database Config" doc:id="304222a9-f22a-4ce3-a432-6dd6f824257f">
+        <db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.username}" password="${db.password}" database="${db.database}" />
+    </db:config>
+    <configuration-properties doc:name="Configuration properties" doc:id="f8176535-a4d0-4490-a914-9e09fa2ea140" file="config/mytrains.system.api.${env}.yaml" />
+    <global-property doc:name="Global Property" doc:id="c54a63cc-40da-41d1-ab9d-f455cd6186a5" name="env" value="dev" />
+    <configuration doc:name="Configuration" doc:id="b5456333-97c8-4409-a99b-67eefb43e6c6" defaultErrorHandler-ref="mytrains-common-error-handler" />
+    <json-logger:config name="jsonLoggerConfig" doc:name="JSON Logger Config" doc:id="95b90370-ab21-4529-9fa3-7cdfda8f70a6" environment="${env}" />
+    <error-handler name="mytrains-common-error-handler" doc:id="9e36bdda-d2fd-4d43-ab1a-5c84ba2b0f6e">
+        <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a4cff2ce-8ce2-4fd3-9b89-f87059e9d61c" type="DB:CONNECTIVITY">
+            <set-payload value="#[&quot;DB:CONNEXTIVITY - &quot; ++ error.description as String]" doc:name="error" doc:id="e70e264b-1551-4dfe-b62d-c700d9671a17" />
+        </on-error-propagate>
+        <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ea00eabb-7e26-4823-b221-688c81f9e117" type="DB:BAD_SQL_SYNTAX">
+            <set-payload value="#[&quot;DB:BAD_SQL_SYNTAX - &quot; ++ error.description as String]" doc:name="error" doc:id="551788be-f38d-4815-92da-51e1e719cdd1" />
+        </on-error-propagate>
+        <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="bf664977-e37e-4d10-afdf-3a7c83e08fba">
+            <set-payload value="#[&quot;Error - &quot; ++ error.description as String]" doc:name="error" doc:id="43ee1a46-ec85-4d8a-b4e6-1270500b805d" />
+        </on-error-propagate>
+    </error-handler>
+</mule>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<http:request-config name="nreConfiguration" doc:name="HTTP Request configuration" doc:id="2805604e-c36d-43e5-a6eb-46c55652ad95" >
+		<http:request-connection host="${nre.host}" port="${nre.port}" />
+	</http:request-config>
+	<vm:config name="alertNotificationVMConfig" doc:name="VM Config" doc:id="4b2db42b-0555-465e-87e2-dde27fc30b5b">
+		<vm:queues >
+			<vm:queue queueName="delayedTrain" />
+		</vm:queues>
+	</vm:config>
+	 <flow name="delay-notifications-flow" doc:id="a6363136-156f-48ea-a96e-02ac7c052f63" >
+		<scheduler doc:name="Scheduler" doc:id="87557d05-e90c-48ae-b2d3-f13a8c8f12de" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<json-logger:logger doc:name="Logger" doc:id="a2c2cf50-0a56-41b7-b162-30c6b2fbcca0" config-ref="jsonLoggerConfig" message="start of alerts flow"/>
+		<http:request method="GET" doc:name="getLocations" doc:id="4ddc28c9-336e-46ca-a051-db5c184d77ff" config-ref="delayLocationsConfiguration" path="${delayLocations.basePath}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	id : "00unbs535Mtx3XV1c4x6"
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	notificationRangeMins : "100"
+}]]]></http:query-params>
+		</http:request>
+		<choice doc:name="Check If There Are Any Qualifying Subscriptions For The Current Time" doc:id="24f9adf9-e81b-4cf7-81d9-6f3c4c792db9" >
+			<when expression="#[!isEmpty(payload)]">
+				<foreach doc:name="For Each" doc:id="da26dbb6-cc16-4bcf-9c16-400decf5b05c" >
+					<set-variable value="#[payload]" doc:name="locationPayload" doc:id="e089b205-95d0-4a73-b732-56cbbb8e0fd1" variableName="locationPayload"/>
+					<http:request method="GET" doc:name="Request" doc:id="d3805c01-8957-4601-8bfa-3dc3b16ff435" config-ref="nreConfiguration" path="${nre.basePath}" target="arrivals">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"sourceLocation" : vars.locationPayload.sourceLocationCode,
+	"destinationLocation": vars.locationPayload.destinationLocationCode,
+	"timeWindowMins": 5 as Number
+}]]]></http:query-params>
+		</http:request>
+					<ee:transform doc:name="Transform Message" doc:id="d5c82e05-7544-4beb-8da3-a428232aef18">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+import java!com::utils::DateUtils
+output application/json
+var trainServices = vars.arrivals.body.GetArrBoardWithDetailsResponse.GetStationBoardResult.trainServices.*service filter ((($.eta > $.sta) and !($.eta contains("On time"))) or (($.eta contains("Cancelled")) and ($.eta contains("Delayed"))))
+
+var delayedTrains = trainServices map {
+
+		delays:{
+	source : vars.locationPayload.sourceLocationCode,
+	destination : vars.locationPayload.destinationLocationCode,
+	standardTime : $.sta ++ ":00",
+	estimatedTime :$.eta,
+	delayType : if (($.eta contains("Cancelled"))) "CANCELLED" else "DELAYED",
+	delayMins :  if (!($.eta contains("Cancelled")) and !($.eta contains("Delayed"))) DateUtils::retrieveMins($.sta ++ ":00",$.eta ++ ":00") else 120
+	}
+}
+---
+delayedTrains]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+					<choice doc:name="Choice" doc:id="bf78220a-82c3-4fc1-ba3f-db02ed7baa87">
+			<when expression="#[!isEmpty(payload)]">
+							<foreach doc:name="For Each" doc:id="b4e66564-fe03-45a9-aa6a-cfd416ac3d08">
+					<vm:publish doc:id="45abcfa3-78e2-4ceb-8112-9cff7f4e6f89" config-ref="alertNotificationVMConfig" queueName="delayedTrain" />
+				</foreach>
+			</when>
+		</choice>
+				</foreach>
+			</when>
+		</choice>
+		<json-logger:logger doc:name="Logger" doc:id="bbc72916-28ce-4b95-94fb-d876ffe36ebd" config-ref="jsonLoggerConfig" message="End of alerts flow"/>
+	</flow> 
+</mule>

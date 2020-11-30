@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<http:listener-config
+		name="nreSysApiHttpListenerConfig">
+		<http:listener-connection host="0.0.0.0"
+			port="${http.port}" />
+	</http:listener-config>
+	<apikit:config name="nreSysApiConfig"
+		api="resource::cd5bf5d6-a7c5-40f7-a8db-9f1046bbc2fd:national-rail-system-api:1.0.3:raml:zip:national-rail-system-api.raml"
+		outboundHeadersMapName="outboundHeaders"
+		httpStatusVarName="httpStatus" />
+	<configuration-properties
+		doc:name="Configuration properties"
+		doc:id="a39f44b1-78fc-4eb5-9bdd-13e58bcd26e1"
+		file="config\national.rail.system.api.${env}.yaml" />
+	<global-property doc:name="Global Property"
+		doc:id="8fb2a701-7a64-4322-9a9d-4999b650b707" name="env" value="dev" />
+	<wsc:config name="nreWebServiceConsumerConfig"
+		doc:name="Web Service Consumer Config"
+		doc:id="2220f82f-15e1-4a5e-9a8a-528889f7a749">
+		<wsc:connection wsdlLocation="${nrePV.wsdl}"
+			service="${nrePV.service}" port="${nrePV.port}" address="${nrePV.address}">
+			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
+		</wsc:connection>
+	</wsc:config>
+	<configuration doc:name="Configuration"
+		doc:id="d909909e-2d2b-4049-a15e-c08d54f82dd0"
+		defaultErrorHandler-ref="national-rail-global-error-handler" />
+	<wsc:config name="nreRefWebServiceConsumerConfig"
+		doc:name="Web Service Consumer Config"
+		doc:id="416da50f-8d22-4ef1-82c5-6b2128d74dcf">
+		<wsc:connection wsdlLocation="${nre.wsdl}"
+			service="${nre.service}" port="${nre.portRef}"
+			address="${nre.addressRef}" />
+	</wsc:config>
+	<json-logger:config name="jsonLoggerConfig"
+		doc:name="JSON Logger Config"
+		doc:id="b0b6c2ec-c9f1-4841-b19c-4d8c1fb03d64"
+		environment="${mule.env}"
+		disabledFields="${json.logger.disabledFields}" />
+	<http:request-config name="mockNreHttpRequest_configuration" doc:name="HTTP Request configuration" doc:id="c00d5b25-5d2f-4f8d-873b-f2ad81f86e66">
+		<http:request-connection protocol="${mock.protocol}" host="${mock.host}" port="${mock.port}" />
+	</http:request-config>
+	<error-handler name="national-rail-global-error-handler" doc:id="e04ce7f9-cbe9-4a22-8558-6c47f90d2e2b" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b15310f3-e1c2-47e3-9e58-ed7443ebe38a" type="HTTP:INTERNAL_SERVER_ERROR, HTTP:RETRY_EXHAUSTED, HTTP:SERVICE_UNAVAILABLE, HTTP:TIMEOUT">
+				<json-logger:logger doc:name="Log Error Message Before Transform" doc:id="9efd4ec3-19a4-4fb1-a1c6-935d6dfbfc6f" config-ref="jsonLoggerConfig" message="Error before transformation" tracePoint="BEFORE_TRANSFORM" priority="ERROR"/>
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+  statusCode: "503",
+  message: "Service Unavailable."
+ }]' doc:name="Set Error" doc:id="65d77cfb-6b20-46ce-a8b0-5efeaec7d8f0" />
+				<json-logger:logger doc:name="Log Error Message After Transform" doc:id="0a631114-3ad4-4ab1-97aa-9c0ef25d1ac0" config-ref="jsonLoggerConfig" message="Server Error after transformation" tracePoint="AFTER_TRANSFORM" priority="ERROR"/>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="41594406-0d70-4db6-9e09-8c45c8e11b21" type="HTTP:BAD_GATEWAY, HTTP:BAD_REQUEST, HTTP:CONNECTIVITY, HTTP:METHOD_NOT_ALLOWED, HTTP:NOT_ACCEPTABLE, HTTP:NOT_FOUND">
+				<json-logger:logger doc:name="Log Error Message Before Transform" doc:id="a9588e93-b110-4247-b811-f81ae0d40857" config-ref="jsonLoggerConfig" message="Error before transformation" tracePoint="BEFORE_TRANSFORM" priority="ERROR"/>
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+  statusCode: "400",
+  message: "Bad Request"
+ }]' doc:name="Set Error" doc:id="60045699-f8c3-4848-8b00-ef0c2b5167a4" />
+				<json-logger:logger doc:name="Log Error Message After Transform" doc:id="d5a257a9-d41e-4b6b-8989-bf7002ecbfea" config-ref="jsonLoggerConfig" message="Bad Request Error after transformation" tracePoint="AFTER_TRANSFORM" priority="ERROR"/>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="cd47b310-95af-4372-b359-dddf5a3ec06d" type="HTTP:FORBIDDEN">
+				<json-logger:logger doc:name="Log Error Message Before Transform" doc:id="300e9993-e807-4045-8439-35d9abd63e01" config-ref="jsonLoggerConfig" message="Error before transformation" tracePoint="BEFORE_TRANSFORM" priority="ERROR"/>
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+  statusCode: "403",
+  message: "Request forbidden"
+ }]' doc:name="Set Error" doc:id="dda5d107-dfd6-4e58-b890-0739741ebeb9" />
+				<json-logger:logger doc:name="Log Error Message After Transform" doc:id="4ff8d07c-b467-424a-b70a-7617c6d3ec44" config-ref="jsonLoggerConfig" message="Error after transformation" tracePoint="AFTER_TRANSFORM" priority="ERROR"/>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c536093f-46da-488c-b2ad-4bbbbc85546c" type="HTTP:UNAUTHORIZED">
+				<json-logger:logger doc:name="Log Error Message Before Transform" doc:id="0eca76b4-4436-4ade-98b1-f9f92f2146ce" config-ref="jsonLoggerConfig" message="Error before transformation" tracePoint="BEFORE_TRANSFORM" priority="ERROR"/>
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+  statusCode: "401",
+  message: "Unauthorised."
+ }]' doc:name="Set Error" doc:id="b6e1be71-1603-44b4-9827-b0a985c4f7c5" />
+				<json-logger:logger doc:name="Log Error Message After Transform" doc:id="90abe6eb-910f-47c5-a427-f466d4fb9b78" config-ref="jsonLoggerConfig" message="Error after transformation" tracePoint="AFTER_TRANSFORM" priority="ERROR"/>
+			</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="6eadfcd3-656a-41ba-81d2-30cf90d67deb" type="WSC:CONNECTIVITY, WSC:RETRY_EXHAUSTED, WSC:TIMEOUT">
+				<json-logger:logger doc:name="Log Error Before Transform" doc:id="9863197d-e128-4ae8-ae6b-82a39836f0f8" config-ref="jsonLoggerConfig" message="Error" tracePoint="BEFORE_TRANSFORM" priority="ERROR" />
+			<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+  statusCode: "503",
+  message: "Unable to reach National Rail Soap API"
+ }]' doc:name="Set Payload" doc:id="c2921ee7-c052-468e-8d8e-61568324557a" />
+			<json-logger:logger doc:name="Log Error After Transform" doc:id="2a7e332f-b8dd-4e03-9057-2e444f38d0b5" config-ref="jsonLoggerConfig" message="#[payload.message]" tracePoint="AFTER_TRANSFORM" priority="ERROR"/>
+			
+</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="7414047b-54ab-410b-b2f9-d5fa6f9c0e92" type="WSC:BAD_REQUEST, WSC:BAD_RESPONSE, WSC:CANNOT_DISPATCH, WSC:ENCODING, WSC:INVALID_WSDL, WSC:SOAP_FAULT">
+				<json-logger:logger doc:name="Log Error Before Transform" doc:id="08e4ab83-2e6b-42ac-af2c-3b5aa882628c" config-ref="jsonLoggerConfig" message="Error" tracePoint="BEFORE_TRANSFORM" priority="ERROR" />
+			<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+  statusCode: "500",
+  message: "Unexpected Error received from National Rail SOAP API"
+ }]' doc:name="Set Payload" doc:id="b0f5551a-eb1f-41a6-a101-4788c0aa2844" />
+			<json-logger:logger doc:name="Log Error After Transform" doc:id="d40a11f4-1cec-4600-902d-8e3d6cc44530" config-ref="jsonLoggerConfig" message="#[payload.message]" tracePoint="AFTER_TRANSFORM" priority="ERROR"/>
+			
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="bfa27733-4c4f-4241-98c4-df0ad230d43b" type="ANY">
+				<json-logger:logger doc:name="Log Error Before Tranform" doc:id="26393586-9fac-4921-84bc-3caea4340590" config-ref="jsonLoggerConfig" message="Error" tracePoint="BEFORE_TRANSFORM" priority="ERROR"/>
+			
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+  statusCode: "500",
+  message: "Unexpected Error occured while transforming data."
+ }]' doc:name="Set Payload to transformation exception" doc:id="605a0817-ee00-4d9b-88b8-cdc95482a745" />
+			<json-logger:logger doc:name="Log Error After Transform" doc:id="50e9266b-c8ee-4ce6-9d2d-cdbdd62a63d0" config-ref="jsonLoggerConfig" message="#[payload.message]" tracePoint="AFTER_TRANSFORM" priority="ERROR"/>
+			
+			</on-error-propagate>
+	</error-handler>
+    
+</mule>

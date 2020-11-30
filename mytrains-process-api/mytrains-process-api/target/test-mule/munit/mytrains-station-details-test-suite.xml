@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="mytrains-station-details-test-suite.xml" />
+	<munit:test name="mytrains-station-details-test-suite-mytrains-insert-station-details-flowTest" doc:id="592dd9d3-8cb3-4931-9904-300456d07b12" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="7f24cada-be62-42d7-b059-ca3201ac24e0" processor="national-rail-system-api:get-station-list">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Get station list" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="0e1fd103-3465-427b-8d64-7a34bddb7357" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://examples/insert-station-details-input.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="59bf5120-67f3-4b20-8f4e-09a15f036ae3" processor="my-trains-system-api:insert-station-details">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Insert Station Details" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="04f2fad0-d738-47ca-8696-9d0c3b6adf48" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://examples/insert-station-details-input.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-insert-station-details-flow" doc:id="f3184ca6-b0ac-4355-9a52-768ab5da1bd6" name="mytrains-insert-station-details-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="904b13f7-5c57-43a1-a6d5-36cbf491a9a8" message="Payload cannot be null" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-station-details-test-suite-mytrains-insert-station-details-flowTest1" doc:id="f7519935-2da2-4fe4-a288-43538d9a1f3e" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="7971cfdd-1722-43bc-9b02-c64b77e8bff6" processor="national-rail-system-api:get-station-list" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Get station list" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="0e1fd103-3465-427b-8d64-7a34bddb7357" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:INTERNAL_SERVER_ERROR" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="2e4cd148-2e0b-4746-8592-6475e930d22c" processor="my-trains-system-api:insert-station-details" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Insert Station Details" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="04f2fad0-d738-47ca-8696-9d0c3b6adf48" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://examples/insert-station-details-input.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="03a96a85-ea46-4c64-9641-ad9acff27f15" >
+				<flow-ref doc:name="Flow-ref to mytrains-insert-station-details-flow" doc:id="dfb068a7-bfa9-4753-a376-bf4f971da6f9" name="mytrains-insert-station-details-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="92177f49-d680-4d21-bb8c-d8e01cc84725" >
+						<logger level="INFO" doc:name="error" doc:id="82d63986-d982-4ba4-b279-4207fa5efa38" message="error"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="a23c4518-ba37-4cde-a93a-d9c933fa66af" actual="#[payload]" expected="Error - " message="Invalid Payload"/>
+		</munit:validation>
+	</munit:test>
+
+</mule>

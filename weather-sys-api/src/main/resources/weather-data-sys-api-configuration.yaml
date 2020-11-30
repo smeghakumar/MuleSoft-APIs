@@ -1,0 +1,22 @@
+json:
+  logger:
+    application:
+      name: "weather-data-sys-api"
+      version: "1.0.0"
+      
+mule:
+  env: "dev"
+
+  
+http:
+  port: "8081"
+  
+  
+weather:
+  appid: "fde32ec1d75b1bf14fbf5db4a3f14df7"
+  host: "backend-mock-ext-api.us-e2.cloudhub.io"
+  basepath: "api"
+  path: "forecast"
+  protocol: "HTTP"
+  port: "80"
+

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:okta-system-api="http://www.mulesoft.org/schema/mule/okta-system-api"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:my-trains-system-api="http://www.mulesoft.org/schema/mule/my-trains-system-api" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/my-trains-system-api http://www.mulesoft.org/schema/mule/my-trains-system-api/current/mule-my-trains-system-api.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/okta-system-api http://www.mulesoft.org/schema/mule/okta-system-api/current/mule-okta-system-api.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="mytrains-create-user-flow" doc:id="299d5073-33c1-4dbc-a6ed-2ce684b1d4d0" >
+		<json-logger:logger doc:name="flowBegin" doc:id="cb789b36-bb39-4c3f-9b52-0d0632c13d07" config-ref="jsonLoggerConfig" message="Payload in the begin of flow"/>
+		<okta-system-api:create-user-in-okta doc:name="Create User in Okta" doc:id="ea83e52b-6372-4ba8-978b-5f2667739b6f" config-ref="oktaSystemAPIConfig" x-api-client-key="${okta.header.clientId}" x-api-client-secret="${okta.header.clientSecret}">
+			<okta-system-api:create-user-in-okta-request-data ><![CDATA[#[{
+	firstName: payload.firstName,
+    lastName: payload.lastName,
+    email: payload.email,
+    password: payload.password,
+    mobilePhone: payload.phone
+}]]]></okta-system-api:create-user-in-okta-request-data>
+		</okta-system-api:create-user-in-okta>
+		<my-trains-system-api:insert-user doc:name="Insert User" doc:id="8c95857f-bd35-402d-ad16-6beea7fbf443" config-ref="myTrainsSystemAPIConfig">
+			<my-trains-system-api:insert-user-request-data ><![CDATA[#[{
+	userId: payload.userId,
+	firstName: payload.firstName,
+    lastName: payload.lastName,
+    phone: payload.mobilePhone, 
+    email: payload.email,
+    createdDate: payload.created , 
+    updatedDate:payload.lastUpdated	
+}]]]></my-trains-system-api:insert-user-request-data>
+		</my-trains-system-api:insert-user>
+		<json-logger:logger doc:name="flowEnd" doc:id="58024861-6c43-4427-972e-a7f8f166fa55" config-ref="jsonLoggerConfig" message="Payload at the end of flow"/>
+	</flow>
+	<flow name="mytrains-retrieve-user-flow" doc:id="09e00265-3bc9-4ec1-ad66-f86b5d2637a0" >
+		<json-logger:logger doc:name="flowBegin" doc:id="fd07ccc1-703f-46c0-a6da-0b8aaca651e6" config-ref="jsonLoggerConfig" message="Payload in the start of flow"/>
+		<my-trains-system-api:get-user doc:name="Get User" doc:id="3e378d47-0d85-4e5e-a94a-a75c0a182267" config-ref="myTrainsSystemAPIConfig"  user-id="#[attributes.uriParams.userId]"/>
+		<json-logger:logger doc:name="flowEnd" doc:id="f775af43-b6e1-4f73-bb65-2b985f22bdc3" config-ref="jsonLoggerConfig" message="Payload at the end of flow"/>
+	</flow>
+	<flow name="mytrains-insert-subscription-flow" doc:id="0286a4a0-a2af-4d01-ad22-9aef359128db" >
+		<json-logger:logger doc:name="flowBegin" doc:id="3e38a906-7d5f-4508-86b3-0538e4d5a792" config-ref="jsonLoggerConfig" message="Payload in the start of flow"/>
+		<my-trains-system-api:insert-subscription doc:name="Insert Subscription" doc:id="cf3e6a6d-9d65-4dfb-a75c-721fce7627ef" config-ref="myTrainsSystemAPIConfig" user-id="#[attributes.uriParams.userId]"/>
+		<json-logger:logger doc:name="flowEnd" doc:id="f13fe113-b3fc-42a1-93d3-c496d0d9f2fd" config-ref="jsonLoggerConfig" message="Payload at the end of flow"/>
+	</flow>
+	<flow name="mytrains-retrieve-subscriptions-flow" doc:id="9a26d64d-638f-493b-aa8a-b6ed9bdc1465" >
+		<json-logger:logger doc:name="flowBegin" doc:id="10b64013-4840-4fa5-a038-0700469ca306" config-ref="jsonLoggerConfig" message="Payload in the start of flow"/>
+		<my-trains-system-api:get-all-susbscription doc:name="Get All Susbscription" doc:id="9a814051-4eb1-4acf-91b4-b4bafc172a2a" config-ref="myTrainsSystemAPIConfig" user-id="#[attributes.uriParams.userId]"/>
+		<json-logger:logger doc:name="flowEnd" doc:id="bfa237b6-1716-4e20-94ae-eb16283f4dc1" config-ref="jsonLoggerConfig" message="Payload at the end of flow"/>
+	</flow>
+	<flow name="mytrains-retrieve-subscription-flow" doc:id="ab751f05-774f-4f4b-94fb-09473edca6b5" >
+		<json-logger:logger doc:name="flowBegin" doc:id="a721e01d-122c-474d-8e09-c610eea0f383" config-ref="jsonLoggerConfig" message="Payload in the start of flow"/>
+		<my-trains-system-api:get-subscription doc:name="Get Subscription" doc:id="d919cc72-b743-4583-a0d6-4281863c4811" config-ref="myTrainsSystemAPIConfig" user-id="#[attributes.uriParams.userId]" subscription-id="#[attributes.uriParams.subscriptionId]"/>
+		<json-logger:logger doc:name="flowEnd" doc:id="a779fcfa-1e98-4fbe-b304-a7d6cf30213a" config-ref="jsonLoggerConfig" message="Payload at the end of flow"/>
+	</flow>
+	<flow name="mytrains-remove-subscription-flow" doc:id="03a1c4d7-6932-48f2-a0be-ebc5d467bd80" >
+		<json-logger:logger doc:name="flowBegin" doc:id="6164d545-333e-4deb-bb1c-da39636b4fd0" config-ref="jsonLoggerConfig" message="Payload in the start of flow"/>
+		<my-trains-system-api:remove-subscription doc:name="Remove Subscription" doc:id="fb1eb4f9-05bb-471d-a4b0-4f42401764c6" config-ref="myTrainsSystemAPIConfig" user-id="#[attributes.uriParams.userId]" subscription-id="#[attributes.uriParams.subscriptionId]"/>
+		<json-logger:logger doc:name="flowEnd" doc:id="ff9ed422-12a4-41f0-b5d4-f334b3818a43" config-ref="jsonLoggerConfig" message="Payload at the end of flow"/>
+	</flow>
+	<flow name="mytrains-user-authenticate-flow" doc:id="fd2206c6-de10-47ee-9c57-e1c67946c709" >
+		<json-logger:logger doc:name="flowBegin" doc:id="da55f2fd-217e-4833-a585-1d23e7a4b5ee" config-ref="jsonLoggerConfig" message="Payload at the beginning of the flow"/>
+		<okta-system-api:authenticate-user doc:name="Authenticate user" doc:id="b5e37b65-a596-4b6c-8268-9a94fa9884f0" config-ref="oktaSystemAPIConfig" x-api-client-key="${okta.header.clientId}" x-api-client-secret="${okta.header.clientSecret}" okta-client-key="${okta.header.clientId}" okta-client-secret="${okta.header.clientSecret}"/>
+		<json-logger:logger doc:name="flowEnd" doc:id="7c972c67-f846-4366-b4e1-de9e92ed0b5f" config-ref="jsonLoggerConfig" message="Payload at the end of the flow"/>
+	</flow>
+	<flow name="mytrains-user-forgot-password-flow" doc:id="bcf79df7-8f18-4ca7-8683-212a12861fad" >
+		<json-logger:logger doc:name="flowBegin" doc:id="f0f95d60-b2f2-45fe-afd5-605c7ac44769" config-ref="jsonLoggerConfig" message="Payload in the beginning of the flow"/>
+		<my-trains-system-api:get-userid doc:name="Get UserId" doc:id="162aec9a-399d-4719-82a0-f8c2fde24372" config-ref="myTrainsSystemAPIConfig" username="#[payload]"/>
+		<okta-system-api:forgot-password doc:name="Forgot Password" doc:id="be45116f-caf8-43a1-9e33-6bac034c0c6e" config-ref="oktaSystemAPIConfig"  x-api-client-key="${okta.header.clientId}" x-api-client-secret="${okta.header.clientSecret}" user-id="#[payload.userId]"/>
+		<json-logger:logger doc:name="flowEnd" doc:id="223f44ab-f2e8-4402-aebf-3c6ae566a552" config-ref="jsonLoggerConfig" message="Payload at the end of the flow"/>
+	</flow>
+</mule>

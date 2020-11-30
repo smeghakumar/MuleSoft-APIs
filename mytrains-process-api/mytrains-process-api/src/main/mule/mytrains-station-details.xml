@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:locations-system-api="http://www.mulesoft.org/schema/mule/locations-system-api"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:train-details-system-api="http://www.mulesoft.org/schema/mule/train-details-system-api" xmlns:national-rail-system-api="http://www.mulesoft.org/schema/mule/national-rail-system-api" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:my-trains-system-api="http://www.mulesoft.org/schema/mule/my-trains-system-api" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/my-trains-system-api http://www.mulesoft.org/schema/mule/my-trains-system-api/current/mule-my-trains-system-api.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/national-rail-system-api http://www.mulesoft.org/schema/mule/national-rail-system-api/current/mule-national-rail-system-api.xsd
+http://www.mulesoft.org/schema/mule/train-details-system-api http://www.mulesoft.org/schema/mule/train-details-system-api/current/mule-train-details-system-api.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/locations-system-api http://www.mulesoft.org/schema/mule/locations-system-api/current/mule-locations-system-api.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="mytrains-insert-station-details-flow" doc:id="87f04d21-cd68-4409-a6fb-359db07a2b88" >
+		<scheduler doc:name="Scheduler" doc:id="4b0ea4ba-b572-42f9-aa52-67496f47c39c" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="24" timeUnit="HOURS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<json-logger:logger doc:name="flowBegin" doc:id="4e11114c-1313-4d3c-9e36-b48d470900c0" config-ref="jsonLoggerConfig" message="Payload in the start of the flow" />
+		<national-rail-system-api:get-station-list doc:name="Get station list" doc:id="0e1fd103-3465-427b-8d64-7a34bddb7357" config-ref="nationalRailSystemAPIConfig" />
+		<json-logger:logger doc:name="responseNRE" doc:id="7db7239e-a9bb-4c2c-8934-1d9554654f88" config-ref="jsonLoggerConfig" message="Payload response from nre"/>
+		<my-trains-system-api:insert-station-details doc:name="Insert Station Details" doc:id="04f2fad0-d738-47ca-8696-9d0c3b6adf48" config-ref="myTrainsSystemAPIConfig"/>
+		<json-logger:logger doc:name="flowEnd" doc:id="04e91b0c-9b00-4cf7-8ea9-0fed81aeb4c0" config-ref="jsonLoggerConfig" message="Payload at the end of flow"/>
+	</flow>
+	<flow name="mytrains-get-station-details-flow" doc:id="a7ba80b6-c2d2-4be5-bd4f-69ae4935339d" >
+		<json-logger:logger doc:name="Logger" doc:id="75d39049-a3bd-45f4-9af7-77cb9bb90073" config-ref="jsonLoggerConfig" message="Payload"/>
+		<my-trains-system-api:get-station-details doc:name="Get Station Details" doc:id="5557b7cf-c164-489d-bb51-b4c299b7b4dd" config-ref="myTrainsSystemAPIConfig" />
+		<parallel-foreach doc:name="Parallel For Each" doc:id="56d78c51-fde4-4263-bea2-bc3b3e68b181">
+			<locations-system-api:list-nearby-post-codes doc:name="List nearby Post-codes" doc:id="238ae74a-1cb5-4994-9fbd-62e3a4ac0708" config-ref="locationsSystemAPIConfig" address="#[payload.stationName]" target="postalCode"/>
+			<ee:transform doc:name="Transform Message" doc:id="ffca11f9-62f3-46ee-9776-59fabc11c7e0">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+	{
+		stationCode: payload.stationCode,
+		stationName: payload.stationName,
+		postalCode: vars.postalCode
+    }
+]
+]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+		</parallel-foreach>
+		<ee:transform doc:name="Transform Message" doc:id="a5e2e1db-d6f7-4da8-87bf-22a39ff7e260" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+flatten(payload.payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="mytrains-retrieve-train-details-flow" doc:id="1cdb328d-716d-45c2-aa5c-7455b5d8b0db" >
+		<json-logger:logger doc:name="flowBegin" doc:id="5439a08b-5044-4f8c-a896-2767c74db8f4" config-ref="jsonLoggerConfig" message="Payload in the beginning of the flow"/>
+		<train-details-system-api:get-train-details doc:name="Get train details" doc:id="26c7ce09-792f-4e5c-8ebc-f66239917f63" config-ref="trainDetailsSystemAPIConfig" origin="#[attributes.queryParams.origin]" destination="#[attributes.queryParams.destination]" travel-date="#[attributes.queryParams.travelDate]" />
+		<json-logger:logger doc:name="flowEnd" doc:id="b17bc950-7bcd-445c-9df5-8515ad32fcae" config-ref="jsonLoggerConfig" message="Payload at the end of the flow"/>
+		<error-handler ref="mytrains-process-global-error-handler" />
+	</flow>
+</mule>

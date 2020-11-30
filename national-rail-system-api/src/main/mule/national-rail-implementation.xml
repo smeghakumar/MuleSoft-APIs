@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+	<flow name="get-arrival-board-details-flow" doc:id="07ffa50b-f341-4c2d-8006-37eb264db00b">
+		<json-logger:logger doc:name="JSON Logger Arrival Details Entry" doc:id="ebfadcb7-e63a-49da-a356-1b4b4f94b5a2" config-ref="jsonLoggerConfig" message="JSON Logger Arrival Details Entry" tracePoint="BEFORE_TRANSFORM" priority="TRACE"/>
+		<ee:transform doc:name="Transform payload and header" doc:id="eb717876-7dbd-4b54-beb4-97547bc4e2bd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ldb http://thalesgroup.com/RTTI/2017-10-01/ldb/
+ns soapenv http://schemas.xmlsoap.org/soap/envelope/
+---
+{
+	ldb#GetArrBoardWithDetailsRequest:{
+	ldb#numRows: 100,
+	ldb#crs: message.attributes.queryParams.sourceLocation,
+	ldb#filterCrs: message.attributes.queryParams.destinationLocation,
+	ldb#timeWindow: message.attributes.queryParams.timeWindowMins,
+	ldb#filterType: "to"
+	}
+
+}
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="headerVar" ><![CDATA[%dw 2.0
+output application/xml
+ns typ http://thalesgroup.com/RTTI/2013-11-28/Token/types
+---
+headers: {
+	typ#AccessToken:{
+		typ#TokenValue: p('nrePV.accessToken')
+	}
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="JSON Logger Before Request" doc:id="70f82721-97bb-4ee8-8e60-353aa4957bbc" config-ref="jsonLoggerConfig" message="JSON Logger Before Consume SOAP" tracePoint="BEFORE_REQUEST" priority="TRACE"/>
+	<!-- 
+		<wsc:consume doc:id="0c14f5c0-45d3-4887-865d-7626f5016e22" operation="GetArrBoardWithDetails" doc:name="Consume NRE SOAP API" config-ref="nreWebServiceConsumerConfig">
+			<wsc:message >
+				<wsc:headers ><![CDATA[#[vars.headerVar]]]></wsc:headers>
+			</wsc:message>
+		</wsc:consume>
+	-->
+	 
+		
+		<http:request method="GET" doc:name="Request for Arrival Board Details" doc:id="d36243c1-c337-4352-b702-2ee3a809345d" config-ref="mockNreHttpRequest_configuration" path="${mock.arrivals.path}"/>
+		<json-logger:logger doc:name="JSON Logger After Request" doc:id="4e34529f-a820-4c92-8200-28d040039768" config-ref="jsonLoggerConfig" message="JSON Logger After Consume SOAP" tracePoint="AFTER_REQUEST" priority="TRACE"/>
+		<ee:transform doc:name="Transform Get Arr board Response to JSON" doc:id="58e2535c-61f2-4f56-8888-fe79c658b848" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+message.payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="JSON Logger Arrival Details Exit" doc:id="880cebd9-4994-4c28-9b11-c385679e86ff" config-ref="jsonLoggerConfig" message="JSON Logger Arrival Details Exit" tracePoint="AFTER_TRANSFORM" priority="TRACE"/>
+	</flow>
+	<flow name="get-station-list-flow" doc:id="f7121e37-b653-44ed-8af1-c7974d4f82e4" >
+		<json-logger:logger doc:name="JSON Logger Station List Entry" doc:id="f93197db-0f37-4603-a24e-0f16ba5db822" config-ref="jsonLoggerConfig" message="JSON Logger Station List Entry" tracePoint="BEFORE_TRANSFORM"/>
+		<ee:transform doc:name="Transform payload and header" doc:id="e7739e6a-af6a-4913-bf38-ac190f36b35b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ldbsvr http://thalesgroup.com/RTTI/2015-05-14/ldbsv_ref/
+ns soapenv http://schemas.xmlsoap.org/soap/envelope/
+---
+{
+	ldbsvr#GetStationList:{
+	ldbsvr#currentVersion: '2020-10-16'
+	}
+
+}
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="header" ><![CDATA[%dw 2.0
+output application/xml
+ns typ http://thalesgroup.com/RTTI/2013-11-28/Token/types
+---
+headers: {
+	typ#AccessToken:{
+		typ#TokenValue: p('nre.accessToken')
+	}
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<json-logger:logger doc:name="JSON Logger Before Consume SOAP" doc:id="9a036d8d-87f3-4a76-abdd-9623a4206e74" config-ref="jsonLoggerConfig" message="JSON Logger Before Consume SOAP" tracePoint="BEFORE_REQUEST" priority="TRACE"/>
+		
+	
+		<!-- <wsc:consume doc:name="Consume NRE SOAP API" doc:id="0aedaa74-4ae7-46dc-b8a9-0884d48b2ea1" config-ref="nreRefWebServiceConsumerConfig" operation="GetStationList">
+			<wsc:message >
+				<wsc:headers ><![CDATA[#[vars.header]]]></wsc:headers>
+			</wsc:message>
+		</wsc:consume> -->
+	
+		
+		<!-- HTTP Request to Mock API for external source -->
+		<http:request method="GET" doc:name="Request for all stations" doc:id="a7ac8ebb-4911-4fa9-8202-7ecd9986e199" config-ref="mockNreHttpRequest_configuration" path="${mock.stations.path}"/>
+		
+		
+		<json-logger:logger doc:name="JSON Logger After Consume SOAP" doc:id="595b57b9-2de3-42bc-a9d4-57c686142bb1" config-ref="jsonLoggerConfig" message="JSON Logger After Consume SOAP" tracePoint="AFTER_REQUEST" priority="TRACE"/>
+		<ee:transform doc:name="Transform Get Station List Response to JSON" doc:id="f2386c9b-4630-4b73-af7f-68f25f73d11f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+message.payload.body.GetStationListResponse.GetStationListResult.StationList.*Station map{
+	"stationCode" : $.@crs,
+	"stationName" : $
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="JSON Logger Station List Exit" doc:id="75c3249f-20ce-492c-af53-c9a8fa9d91bc" config-ref="jsonLoggerConfig" message="JSON Logger Station List Exit" tracePoint="AFTER_TRANSFORM"/>
+	</flow>
+</mule>

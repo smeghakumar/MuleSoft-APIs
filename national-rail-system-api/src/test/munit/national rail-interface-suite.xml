@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="national rail-interface-suite.xml" />
+	<munit:test name="national-rail-system-api-interface-get-arrivals-test" doc:id="bd0eb993-dd6f-4639-afb0-3baee6aaa3cd" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Router" doc:id="5a4e2a82-9184-417c-b9ad-8f6bc8ac04e9" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="9cc3856a-36ce-4e85-85f2-f32e0aa1bc5e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://nationalrailsystemapimaintest\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://nationalrailsystemapimaintest\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="headerVar" value="#[output application/xml --- readUrl('classpath://nationalrailsystemapimaintest\mock_variable_.dwl')]" mediaType="application/xml" encoding="UTF-8" />
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://nationalrailsystemapimaintest\mock_variable_1.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://nationalrailsystemapimaintest\mock_variable_2.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="ac792ca0-591d-420b-b939-372376e1e412" >
+				<munit:payload value="#[readUrl('classpath://nationalrailsystemapimaintest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://nationalrailsystemapimaintest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to national-rail-system-api-main" doc:id="ff508e07-b896-475b-a234-7220d6505467" name="national-rail-system-api-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="f29b66cf-89b0-47b1-869f-aaff85808b7c" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import nationalrailsystemapimaintest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="national-rail-system-api-interface-get-station-list-test" doc:id="d423d4a0-b761-4604-86c7-63938f83b9cb" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Router" doc:id="c7522419-c2bf-4d90-945c-2a8d221b81c3" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="9cc3856a-36ce-4e85-85f2-f32e0aa1bc5e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://nationalrailsystemapiinterfacegetstationlisttest\mock_payload.dwl')]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://nationalrailsystemapiinterfacegetstationlisttest\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://nationalrailsystemapiinterfacegetstationlisttest\mock_variable_.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://nationalrailsystemapiinterfacegetstationlisttest\mock_variable_1.dwl')]" />
+						<munit-tools:variable key="header" value="#[output application/xml --- readUrl('classpath://nationalrailsystemapiinterfacegetstationlisttest\mock_variable_2.dwl')]" mediaType="application/xml" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="91999992-4e25-4f3e-8c98-334ed81b2633" >
+				<munit:payload value="#[readUrl('classpath://nationalrailsystemapiinterfacegetstationlisttest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://nationalrailsystemapiinterfacegetstationlisttest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to national-rail-system-api-main" doc:id="ca01555b-41bb-42da-96a3-c16ed56f1a86" name="national-rail-system-api-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="f1d028e7-3b8b-4c85-bb31-1224682f9445" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import nationalrailsystemapiinterfacegetstationlisttest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+
+<!-- Test cases for Actual endpoint -->
+<!-- 
+<munit:test name="nre-sys-api-station-endpoint-test" doc:id="1d10624f-cbe0-4ba6-b19b-2ab135298e9c" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Console" doc:id="aaebb856-6235-46ce-917e-c99da87f5da5" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="nreSysApiConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://nationalrailsystemapiconsoletest\mock_payload.dwl')]" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://nationalrailsystemapiconsoletest\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://nationalrailsystemapiconsoletest\mock_variable_.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://nationalrailsystemapiconsoletest\mock_variable_1.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to national-rail-system-api-main" doc:id="5d3bf027-212b-4153-8aad-769d3c58ef0b" name="national-rail-system-api-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="25ac311f-77fe-4748-bd2b-212cf83cb0ac" is="#[MunitTools::notNullValue()]" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="national-rail-system-api-console-test" doc:id="08630696-4769-4254-b936-2c8f2fcaebcd" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Console" doc:id="7f24a6e7-7ad6-44fd-9a49-0b640a03a95a" processor="apikit:console">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="780b3b58-dd1b-4125-b932-02c554f7df54" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://nationalrailsystemapiconsoletest\mock_payload.dwl')]" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://nationalrailsystemapiconsoletest\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://nationalrailsystemapiconsoletest\mock_variable_.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://nationalrailsystemapiconsoletest\mock_variable_1.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="7e8f55d7-02a3-49c0-8f61-c870648be4a2" >
+				<munit:payload value="#[readUrl('classpath://nationalrailsystemapiconsoletest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://nationalrailsystemapiconsoletest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to national-rail-system-api-console" doc:id="20abd3ae-374a-42c4-8dae-650031ae8535" name="national-rail-system-api-console"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="2a8ab3c8-fa94-4592-a6eb-37420787c55d" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import nationalrailsystemapiconsoletest::assert_expression_payload
+-&#45;&#45;
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+ -->
+
+</mule>

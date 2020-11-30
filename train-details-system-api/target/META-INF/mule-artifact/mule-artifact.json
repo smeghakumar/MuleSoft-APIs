@@ -1,0 +1,29 @@
+{
+  "configs": [
+    "train-details-system-api-implementation.xml",
+    "traindetails-system-api.xml",
+    "train-details-global-api.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "com.mycompany:train-details-system-api:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.3.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "log4j2.xml",
+        "traindetails-system-api.xml",
+        "config/train.details.system.api.dev.yaml",
+        "train-details-system-api-implementation.xml",
+        "train-details-global-api.xml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

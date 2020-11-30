@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="mytrains-station-details-suite.xml" />
+	<munit:test name="mytrains-retrieve-train-details-flow-test" doc:id="9c5693b8-d1cd-4b87-bd85-ca6e80973997" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Get train details" doc:id="af850c74-f0d2-4169-b9f4-bbfec89e7af5" processor="train-details-system-api:get-train-details">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="26c7ce09-792f-4e5c-8ebc-f66239917f63" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://mytrainsretrievetraindetailsflowtest\mock_payload.dwl')]" mediaType="application/json" />
+					<munit-tools:attributes value="#[readUrl('classpath://mytrainsretrievetraindetailsflowtest\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://mytrainsretrievetraindetailsflowtest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="c248be5b-fe97-4a70-ad10-d39f494be206" >
+				<munit:payload value="#[readUrl('classpath://mytrainsretrievetraindetailsflowtest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://mytrainsretrievetraindetailsflowtest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://mytrainsretrievetraindetailsflowtest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-retrieve-train-details-flow" doc:id="76c0a039-e44e-41b2-a0d3-32c3441f1fd2" name="mytrains-retrieve-train-details-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="d303bdf0-fb20-40fe-8c9e-789610671675" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import mytrainsretrievetraindetailsflowtest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-station-details-suiteTest" doc:id="4a4fa81a-021d-4295-9209-3c37ec2a1be4" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="8125a44c-168a-4532-a71e-0539bab43d56" processor="my-trains-system-api:get-station-details">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Get Station Details" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="5557b7cf-c164-489d-bb51-b4c299b7b4dd" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://sample/sample.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="f1e09bbb-8e84-49c6-a904-32787dbee28d" processor="parallel-foreach">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Parallel For Each" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="56d78c51-fde4-4263-bea2-bc3b3e68b181" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://sample/sample1.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="c15a968b-2141-431b-8c0e-4cd3122bbf04" name="mytrains-get-station-details-flow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="007452b5-6ac8-4a17-840a-af4a848f4ccd" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-station-details-suiteTest1" doc:id="28bec7cb-d465-4db3-bf43-4b32c9ea49a5" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="ac7d3ce2-0918-4899-a6b4-d4bedd7c7b44" processor="train-details-system-api:get-train-details">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Get train details" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="26c7ce09-792f-4e5c-8ebc-f66239917f63" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="trainDetailsSystemAPIConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="MY-TRAINS-SYSTEM-API:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="2b514f6b-653d-4610-a211-8bce38605ee5" >
+				<flow-ref doc:name="Flow Reference" doc:id="e0e5c037-22ed-43fd-aa5d-ddb064fbf446" name="mytrains-retrieve-train-details-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="3abff722-0f89-4b2a-a19c-c53083eda4ce" >
+						<logger level="INFO" doc:name="Logger" doc:id="326784c4-ab8e-470a-b4c5-86f85e43627d" message='#[""]'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="30ea4084-cc59-44af-8b4a-0c18d66673db" actual="#[payload]" expected='#["MY-TRAINS-SYSTEM-API:BAD_REQUEST - "]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-station-details-suiteTest2" doc:id="1768e21b-a4e5-4cf6-8d52-3ef246008d83" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="fae973aa-bd88-40c3-b6af-f4c8bec00912" processor="train-details-system-api:get-train-details" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Get train details" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="26c7ce09-792f-4e5c-8ebc-f66239917f63" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="trainDetailsSystemAPIConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="TRAIN-DETAILS-SYSTEM-API:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="19360cce-cf94-4877-b6b3-35d6c1520600" >
+				<flow-ref doc:name="Flow Reference" doc:id="dde5fefc-1829-4df8-8307-c5a8bf669977" name="mytrains-retrieve-train-details-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="e835189c-d547-4a5f-bae0-cd68e0a5a5c8" >
+						<logger level="INFO" doc:name="Logger" doc:id="3237045f-f5df-4dfe-b835-3515ff109ad2" message='#[""]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="dba273a0-7714-4c2f-835d-32de386a8734" actual="#[payload]" expected='#["TRAIN-DETAILS-SYSTEM-API:BAD_REQUEST - "]' />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-station-details-suiteTest3" doc:id="68448459-4f3a-4fab-969a-150e94bef936" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="7da1be88-e9f6-4c41-918f-0b39b0aea9dd" processor="train-details-system-api:get-train-details" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Get train details" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="26c7ce09-792f-4e5c-8ebc-f66239917f63" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="trainDetailsSystemAPIConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="MY-TRAINS-SYSTEM-API:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="9f44085d-3e4d-463e-8915-9f147547a4a3" >
+				<flow-ref doc:name="Flow Reference" doc:id="46917d32-54af-43e6-9aea-b10d0254961c" name="mytrains-retrieve-train-details-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d6c6d203-3113-48ac-896e-0fdadb55b708" >
+						<logger level="INFO" doc:name="Logger" doc:id="809a6796-5e67-42b3-9ddf-035623b22117" message='#[""]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="86647562-dc1b-4a56-ae74-9faa5fb23d24" actual="#[payload]" expected='#["MY-TRAINS-SYSTEM-API:CONNECTIVITY - "]' />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-station-details-suiteTest4" doc:id="3b4d669c-aef5-4912-a641-c34428a871f4" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="c16a3e38-22fa-439b-a55a-c4594e231d9b" processor="train-details-system-api:get-train-details" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Get train details" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="26c7ce09-792f-4e5c-8ebc-f66239917f63" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="trainDetailsSystemAPIConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="OKTA-SYSTEM-API:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="28623286-cb82-4d9b-8b93-d29c20966971" >
+				<flow-ref doc:name="Flow Reference" doc:id="533c1f96-ff20-45a6-ae52-8377ff629ffe" name="mytrains-retrieve-train-details-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="585f7adf-f2fb-43ac-8f71-fbc0b48d5490" >
+						<logger level="INFO" doc:name="Logger" doc:id="ae111e06-7c08-485f-bd63-87d44526096f" message='#[""]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="eb45a722-6517-4768-a885-baa430500853" actual="#[payload]" expected='#["OKTA-SYSTEM-API:BAD_REQUEST - "]' />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-station-details-suiteTest5" doc:id="918f614c-d118-48fd-a5a3-d3352ac25909" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="cfe0a384-4ccb-4357-90bc-656365924bc9" processor="train-details-system-api:get-train-details" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Get train details" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="26c7ce09-792f-4e5c-8ebc-f66239917f63" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="trainDetailsSystemAPIConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="OKTA-SYSTEM-API:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="29d572e2-1b21-4141-95e5-18c1ed6fcb17" >
+				<flow-ref doc:name="Flow Reference" doc:id="1c744521-9320-4cf0-8aeb-6a2250fd8689" name="mytrains-retrieve-train-details-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="b358fbee-ad34-41d3-8b8c-dd18dcb65a3c" >
+						<logger level="INFO" doc:name="Logger" doc:id="d12efdc6-a0f4-49ff-9d8b-ef9f0ab5b69f" message='#[""]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="bed7fd5b-517b-4fed-aab3-7b44dd561ea7" actual="#[payload]" expected='#["OKTA-SYSTEM-API:CONNECTIVITY - "]' />
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

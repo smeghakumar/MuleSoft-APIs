@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="mytrains-process-api-suite.xml" />
+	<munit:test name="get:\trains:myTrainsProcessApiConfig-test" doc:id="489912fb-0795-40b5-801d-94c10044acda" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock mytrains-retrieve-train-details-flow" doc:id="1db13022-20c5-4c1b-8389-b894c63ef61a" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="3b372965-9741-464d-af8a-8622b4873685" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://gettrainsmyTrainsProcessApiConfigtest\mock_payload.dwl')]" mediaType="application/json" />
+					<munit-tools:attributes value="#[readUrl('classpath://gettrainsmyTrainsProcessApiConfigtest\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://gettrainsmyTrainsProcessApiConfigtest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="640e1b72-9609-4558-884c-14c81dc5b969" >
+				<munit:payload value="#[readUrl('classpath://gettrainsmyTrainsProcessApiConfigtest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://gettrainsmyTrainsProcessApiConfigtest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://gettrainsmyTrainsProcessApiConfigtest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\trains:myTrainsProcessApiConfig" doc:id="e441c988-3929-4c8b-a9b0-e316abb0d394" name="get:\trains:myTrainsProcessApiConfig"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="4321ba5e-f647-4b8e-a4aa-a91060475d52" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import gettrainsmyTrainsProcessApiConfigtest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-process-api-suiteTest" doc:id="55580acf-f591-473c-8d51-3913f59ed7d1" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="e15d4a9c-de8f-405a-a33a-b55549d7bf3e" processor="flow-ref">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mytrains-get-station-details-flow" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="7f7a41e4-4192-459c-ac48-0b19da3db2d4" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="33f119e9-e9ae-4d71-9fe7-b1df3ffe2fdf" name="get:\location:myTrainsProcessApiConfig"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="e8ba388a-a7a2-4f74-98a4-f1b3768420ed" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-process-api-console-test" doc:id="601cb978-2c1d-418f-a23e-7018a9b958dd" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Console" doc:id="6887c867-26c6-45d2-bc1a-bc9a3d558e49" processor="apikit:console">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="17785232-5a94-46e1-9b31-2ad39f66111e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://mytrainsprocessapiconsoletest\mock_payload.dwl')]" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://mytrainsprocessapiconsoletest\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://mytrainsprocessapiconsoletest\mock_variable_.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://mytrainsprocessapiconsoletest\mock_variable_1.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="0969c268-6e84-489d-ab35-899f355e4232" >
+				<munit:payload value="#[readUrl('classpath://mytrainsprocessapiconsoletest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://mytrainsprocessapiconsoletest\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-process-api-console" doc:id="8c280248-748f-4c20-856b-02f484c4ed92" name="mytrains-process-api-console"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="d030b562-d323-4163-a1aa-68dd84f43a55" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import mytrainsprocessapiconsoletest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-process-api-suiteTest1" doc:id="be8fe19d-a7d8-4a7f-a0b6-f9adbd314b44" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="5bc9f649-c77d-4db4-945e-756816ab7e6b" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="myTrainsProcessApiConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[readUrl('classpath://mytrainsprocessapiconsoletest\mock_payload.dwl')]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="a432ca14-812f-4956-9dcc-2b80807486d9" name="mytrains-process-api-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="3da2ddd0-5e39-4f68-8269-823197abeed5" message="The payload does not match" >
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import mytrainsprocessapiconsoletest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-process-api-suiteTest2" doc:id="a1f83df0-e328-48bb-ba55-9c7c69ce6f78" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="fd91dcbf-cc77-46f4-8de0-f99cdb0847a4" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="myTrainsProcessApiConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="ee634195-4a77-411c-900b-534deebd2c4c" >
+				<flow-ref doc:name="Flow Reference" doc:id="e87e0e90-fe6f-4c1c-9a39-417881ee334f" name="mytrains-process-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="accbbf7f-fd0c-4eee-b40a-f88eab26cd97" >
+						<logger level="INFO" doc:name="Logger" doc:id="e7b4a97f-7012-4dbc-9aeb-3770a815bff9" message='#[""]'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="840c513f-33a9-4072-8eb7-b2006e6e6994" actual="#[payload]" expected='#[{
+  "message": "Bad request"
+}]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-process-api-suiteTest3" doc:id="2cc151b0-d076-49ae-a4e3-ff2291801653" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="c9b41dd7-2234-45af-894f-0754434e7034" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="myTrainsProcessApiConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="aeaaf997-4ce1-4a24-bb9e-a484b2785769" >
+				<flow-ref doc:name="Flow Reference" doc:id="1193fdff-6e02-4b28-9b69-3e2bd9d09e57" name="mytrains-process-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="49635e87-c801-4c43-a914-fa36c5419587" >
+						<logger level="INFO" doc:name="Logger" doc:id="06e12192-cebb-4c4d-ac4c-394aeca39a1d" message='#[""]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="dcabe433-781a-48f1-bfe1-16784efc94a0" actual="#[payload]" expected='#[{message: "Resource not found"}]' />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-process-api-suiteTest4" doc:id="c43afb3e-8b11-407e-942a-e306d33dfbaf" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="255514f7-5ad3-4964-a9f0-6550709a801c" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="myTrainsProcessApiConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="b838c731-0c88-4277-b204-30604ff555f8" >
+				<flow-ref doc:name="Flow Reference" doc:id="42f9ca10-6247-4e4b-b153-d56479f427eb" name="mytrains-process-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="729d5f59-9e7d-430b-8381-07f90fc786f3" >
+						<logger level="INFO" doc:name="Logger" doc:id="4279f612-89fc-43a3-a9fe-3bb8a213da7d" message='#[""]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="84f93bf1-c647-472a-84c2-8a4d4f0acf7f" actual="#[payload]" expected='#[{message: "Method not allowed"}]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-process-api-suiteTest5" doc:id="c432f382-3ad2-4d9f-8fdc-1fe64309fa8d" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="310b1148-1f27-424e-aad0-a441ffa35080" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="myTrainsProcessApiConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="c43c2349-739e-45c6-888e-45037eb23c70" >
+				<flow-ref doc:name="Flow Reference" doc:id="5ecd1eef-f3f7-429b-b12e-5e8dcdc08a52" name="mytrains-process-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="3a6ca602-140c-4690-b99d-9ff38354907d" >
+						<logger level="INFO" doc:name="Logger" doc:id="3a52a568-b11e-43e3-bdaa-371d61ee39b8" message='#[""]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="cff61cfd-9378-490a-82c0-eb0b5245e66e" actual="#[payload]" expected='#[{message: "Not acceptable"}]' />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-process-api-suiteTest6" doc:id="6582f52d-e980-4571-ae1b-af5689f8c7a4" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="97702736-8c8d-459d-bf26-c645b2d08b8d" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="myTrainsProcessApiConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="67c14d63-bc26-4bb9-a7d8-b302a6439b4d" >
+				<flow-ref doc:name="Flow Reference" doc:id="aec29b55-04f1-4d19-9cdd-8d3e6de6e620" name="mytrains-process-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="dadd720b-9ef4-4445-ac24-557bb5d8296b" >
+						<logger level="INFO" doc:name="Logger" doc:id="764c0063-fa03-42c4-b57e-5427a3c4b7e6" message='#[""]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="30471016-a48c-4538-b509-5d2dafa919d9" actual="#[payload]" expected='#[{message: "Unsupported media type"}]' />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-process-api-suiteTest7" doc:id="4e61cfd7-1488-4ad1-b7fd-4b6a7d2d8eab" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="a061b74b-443e-4986-b862-08b5ba342e99" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="myTrainsProcessApiConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_IMPLEMENTED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="6dd83484-a9c5-46ca-a306-a88a43202aee" >
+				<flow-ref doc:name="Flow Reference" doc:id="f5243600-ddff-406b-b040-a0ba6b48466e" name="mytrains-process-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2f295680-de8e-4999-a623-278dfc9f8adf" >
+						<logger level="INFO" doc:name="Logger" doc:id="fd115203-c41c-4d76-a5cb-8f962225c9a5" message='#[""]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="a4f9f331-5d71-46c9-ba3a-e671e87c4ca7" actual="#[payload]" expected='#[{message: "Not Implemented"}]' />
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

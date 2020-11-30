@@ -1,0 +1,16 @@
+{ 
+ "cityName": "London",
+  "countryName": "GB",
+  "latitude": "51.5085",
+  "longitude": "-0.1257",
+  "date": "2020-11-28 15:00:00",
+  "temperature": "282.9",
+  "temp_min": "279.55",
+  "temp_max": "282.69",
+  "feelsLike": "280.66",
+  "humidity": "79",
+  "weather": "clear sky",
+  "clouds": "61",
+  "windSpeed": "3.09",
+  "visibility": "10000"
+}

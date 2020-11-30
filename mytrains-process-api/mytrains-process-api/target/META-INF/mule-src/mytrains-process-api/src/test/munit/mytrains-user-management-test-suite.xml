@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="mytrains-user-management-test-suite.xml" />
+	<munit:test name="mytrains-user-management-test-suite-mytrains-insert-subscription-flowTest" doc:id="f76aab3b-1d43-4730-a0b1-5b1bb8bb6ecc" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Event" doc:id="e7290179-f432-4dfb-924c-b3585a5a2bd8" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://examples/insert-subscription-mock.dwl')]" mediaType="application/json" />
+				<munit:attributes value="#[{uriiParams: {'userId': '7'}}]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="a3725e7c-3c47-451f-a171-206cd8d17aa4" processor="my-trains-system-api:insert-subscription">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="cf3e6a6d-9d65-4dfb-a75c-721fce7627ef" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="myTrainsSystemAPIConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://examples/insert-subscription-mock.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-insert-subscription-flow" doc:id="a8cda6c5-a9c9-473c-82fd-be863475c04d" name="mytrains-insert-subscription-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="690742e0-905c-46cb-b644-e52b0e2dabe3" is="#[MunitTools::notNullValue()]" message="Payload cannot be null" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-user-management-test-suite-mytrains-user-forgot-password-flowTest" doc:id="46020726-1cb9-47f4-ac8c-12558daaacc3" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Event" doc:id="8a798c00-59a2-40ca-9f32-228b038ae6a3" >
+				<munit:attributes value="#[output application/json --- readUrl('classpath://examples/forgot-password-headers.dwl')]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="5b0c9468-d38e-46e4-9424-510e6af7475b" processor="my-trains-system-api:get-userid">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Get UserId" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="162aec9a-399d-4719-82a0-f8c2fde24372" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="9e3f4f73-5f2d-404a-a0ed-dc6f6ef22a00" processor="okta-system-api:forgot-password">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Forgot Password" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="be45116f-caf8-43a1-9e33-6bac034c0c6e" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://examples/forgot-password-output.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-user-forgot-password-flow" doc:id="93989bca-f9fc-4a85-a62d-83fa79f2d55e" name="mytrains-user-forgot-password-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="4892635a-3397-4c1b-9af0-83d930a083a9" message="Payload cannot be null" is="#[MunitTools::notNullValue()]" expression="#[payload]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-user-management-test-suite-mytrains-user-authenticate-flowTest" doc:id="0fdbc641-36c4-4cc7-9be0-23e7913fc08c" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Event" doc:id="d9321c3b-6751-48eb-9332-c0c056579c33" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://examples/user-login-input.dwl')]" />
+				<munit:attributes value="#[output application/json --- readUrl('classpath://examples/user-login-headers.dwl')]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="4ed36818-54a9-46c9-996e-794c272f9600" processor="okta-system-api:authenticate-user">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Authenticate user" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="b5e37b65-a596-4b6c-8268-9a94fa9884f0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://examples/user-login-output.dwl')]" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-user-authenticate-flow" doc:id="eac2bb2c-2af3-4b24-94a0-7284f3b00635" name="mytrains-user-authenticate-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="a812bd40-0e91-4fa8-be71-1a07c48bd7d7" message="Payload cannot be null" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="mytrains-user-management-test-suite-mytrains-create-user-flowTest" doc:id="e08088b5-3a4b-4f11-a260-f535928f451a" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Event" doc:id="67a16f6e-22d9-45ef-a5e8-894779ab0a83" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://examples/user-register-input.dwl')]" mediaType="application/json" />
+				<munit:attributes value="#[output application/json --- readUrl('classpath://examples/forgot-password-headers.dwl')]" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="43d27b69-6883-4de8-a785-59362d75d0b6" processor="okta-system-api:create-user-in-okta">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Create User in Okta" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ea83e52b-6372-4ba8-978b-5f2667739b6f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://examples/user-register-okta-output.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="0353928d-381b-4a22-8dfe-9de5a6f164ac" processor="my-trains-system-api:insert-user">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Insert User" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="8c95857f-bd35-402d-ad16-6beea7fbf443" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- readUrl('classpath://examples/user-register-output.dwl')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mytrains-create-user-flow" doc:id="9def7747-56ee-437f-a377-a2151532814b" name="mytrains-create-user-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="c18b2bb1-4701-48c8-9812-f29c74df9547" message="Payload cannot be null" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+
+</mule>

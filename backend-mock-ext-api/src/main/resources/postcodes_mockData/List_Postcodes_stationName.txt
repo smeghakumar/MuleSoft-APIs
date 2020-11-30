@@ -1,0 +1,35 @@
+[
+London WaterLoo: [
+    "SE1 8SW",
+    "SE1 7LY",
+    "SE1 7RJ",
+    "SE1 7RY"
+],
+Basingstoke:[
+    "RG21 7EB",
+    "RG21 7LW",
+    "RG21 7JT",
+    "RG21 7DW",
+    "RG22 5NZ"
+],
+London St Pancras (Intl):[
+    "N1C 4QP",
+    "NW1 2QS",
+    "N1C 4AP",
+    "N1C 4",
+    "N1 9NW"
+],
+Leeds: [
+     "LS1 6AL",
+    "LS2 8DZ",
+    "LS2 7HY",
+    "LS1 1PJ",
+    "LS2 7AU"
+],
+Woking: [
+    "GU21 4LL",
+    "GU22 7AE",
+    "GU22 7AA",
+    "GU21 6XR"
+]
+]

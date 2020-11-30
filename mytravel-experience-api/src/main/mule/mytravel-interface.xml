@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <flow name="mytravel-experience-api-main">
+        <http:listener config-ref="mytravelExperienceApiHttpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="myTravelExperienceApiConfig" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="mytravel-experience-api-console">
+        <http:listener config-ref="mytravelExperienceApiHttpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="myTravelExperienceApiConfig" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\myTravel\locations\attractionspots:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="36ab755c-20b3-4db7-a932-4cf45a19a67e" name="get-attraction-spots-flow"/>
+    </flow>
+    <flow name="get:\myTravel\locations\covid:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="48d20240-5395-4680-bb96-295f9cb8b451" name="get-covid-update-by-region-flow"/>
+    </flow>
+    <flow name="get:\myTravel\locations\covid\areaname:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="7aaedd3c-22c5-4330-98a7-e48edd56945a" name="get-covid-update-by-area-flow"/>
+    </flow>
+    <flow name="get:\myTravel\locations\forecast:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="770dacda-dda8-4ce1-a8c4-05b958c3b923" name="get-forecast-flow"/>
+    </flow>
+    <flow name="get:\myTravel\locations\stations\nearby:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="bf7fd4b6-4b50-45f6-bcc5-834445a13379" name="get-nearby-station-flow"/>
+    </flow>
+    <flow name="get:\myTravel\locations\stations:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="83f9137e-1571-4f41-90cc-beab32cacf4e" name="get-all-stations-flow"/>
+    </flow>
+    <flow name="get:\myTravel\locations\stations\trains:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="9b90f2d0-9a94-4477-a646-6fe4c51fc699" name="get-train-details-flow"/>
+    </flow>
+    <flow name="post:\myTravel\login:application\json:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="5d954f5d-c4d5-4d98-b328-695eaf3c35f6" name="user-login-flow"/>
+    </flow>
+    <flow name="post:\myTravel\register:application\json:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="1cda1413-7442-436f-9713-eff107dc5405" name="register-user-flow"/>
+    </flow>
+    <flow name="delete:\myTravel\users\(userId)\subscriptions\(subscriptionId):myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="041eecb9-5eb4-4273-9777-a460b860fd62" name="unsubscribe-flow"/>
+    </flow>
+    <flow name="get:\myTravel\users\(userId)\subscriptions\(subscriptionId):myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="d3e19bbf-fa14-44cd-ab7f-ab7bbb1c305c" name="get-subscription-by-id-flow" />
+    </flow>
+    <flow name="get:\myTravel\users\(userId)\subscriptions:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="8c536300-681d-4aff-be7b-fdc8f3b18a55" name="get-all-subscriptions-flow"/>
+    </flow>
+    <flow name="get:\myTravel\users\(userId):myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="efaea22b-f890-41bc-a645-de1ab4c6f541" name="get-user-by-userId-flow"/>
+    </flow>
+    <flow name="post:\myTravel\forgotPassword:application\json:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="f3a1e0bb-15d9-43f6-be15-d9815851a73d" name="forgot-password-flow"/>
+    </flow>
+    <flow name="post:\myTravel\users\(userId)\subscriptions:application\json:myTravelExperienceApiConfig">
+		<flow-ref doc:name="Flow Reference" doc:id="c24bdd79-c27e-4b87-bb7b-94ba1f38dcba" name="create-subscription-flow"/>
+    </flow>
+</mule>

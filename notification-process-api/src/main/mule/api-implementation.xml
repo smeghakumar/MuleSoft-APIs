@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:national-rail-system-api="http://www.mulesoft.org/schema/mule/national-rail-system-api" xmlns:locations-system-api="http://www.mulesoft.org/schema/mule/locations-system-api" xmlns:weather-data-sapi="http://www.mulesoft.org/schema/mule/weather-data-sapi" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/weather-data-sapi http://www.mulesoft.org/schema/mule/weather-data-sapi/current/mule-weather-data-sapi.xsd
+http://www.mulesoft.org/schema/mule/locations-system-api http://www.mulesoft.org/schema/mule/locations-system-api/current/mule-locations-system-api.xsd
+http://www.mulesoft.org/schema/mule/national-rail-system-api http://www.mulesoft.org/schema/mule/national-rail-system-api/current/mule-national-rail-system-api.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+		<flow name="covid-data-flow" doc:id="e1f721c8-7ca2-4046-bf95-6a62375c902c" >
+		<json-logger:logger doc:name="Logger" doc:id="d62212e1-2dfc-4471-a12a-d7be9b342964" config-ref="jsonLoggerConfig" message="start of covid-data flow"/>
+		<http:request method="GET" doc:name="Request" doc:id="24d2b387-160a-42d3-b845-dfa95b4905b9" config-ref="covidApiconfiguration" path="${covid.basePath}"/>
+		<json-logger:logger doc:name="Logger" doc:id="2a70d919-e90f-4053-b8e3-c7ed7992ceba" config-ref="jsonLoggerConfig" message="End of covid data flow" tracePoint="END"/>
+	</flow>
+	<flow name="covid-by-area-flow" doc:id="68bc9e8a-291c-4410-a3ab-00386593c070" >
+		<json-logger:logger doc:name="Logger" doc:id="09928715-5580-4700-8e57-72e85048f7c0" config-ref="jsonLoggerConfig" message="start of covid by area flow"/>
+		<http:request method="GET" doc:name="Request" doc:id="a8a088ac-495a-41a1-90f3-b6dee8f14df6" config-ref="covidByAreaConfiguration" path="${covidByArea.basePath}">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	date : message.attributes.queryParams.date,
+	location : message.attributes.queryParams.location
+}]]]></http:query-params>
+		</http:request>
+		<json-logger:logger doc:name="Logger" doc:id="14386126-61a1-449a-8626-e04394ea048e" config-ref="jsonLoggerConfig" message="End of covid by area flow" tracePoint="END"/>
+	</flow>
+	<flow name="station-list-flow" doc:id="1b06967b-860e-4166-8e5b-4d791dc0c864" >
+		<!-- <locations-system-api:get-nearby-stations doc:name="Get nearby stations" doc:id="bdb790a6-5e96-4174-a4f1-b0ec76ba4061" config-ref="Locations_System_API_Config" address="#[message.attributes.queryParams.address]" />
+		<logger level="INFO" doc:name="Logger" doc:id="e9ce01c0-455f-42dc-bfe1-a6ff8248336e" message="#[payload]"/>
+		 --><json-logger:logger doc:name="Logger" doc:id="f01613f9-44aa-454d-9f2f-bafa1c901161" config-ref="jsonLoggerConfig" message="start of station list flow"/>
+		<http:request method="GET" doc:name="Request" doc:id="ab1ff752-625c-41aa-9b08-bc19a4703e49" config-ref="stationListRequestConfiguration" path="${stationList.basePath}" target="stationListData">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	address : message.attributes.queryParams.address
+}]]]></http:query-params>
+		</http:request>
+		<http:request method="GET" doc:name="Request" doc:id="626801e9-632d-499e-a13e-2ffc7ab45a64" config-ref="nationalRailSystemAPIConfig" path="${nationalRail.basePath}"/>
+		<ee:transform doc:name="Transform Message" doc:id="8a6c2cb5-48cd-43d0-ae1a-9153c021d3d4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var station = vars.stationListData
+var NRData = payload
+---
+(flatten(station map ((item, index) -> NRData map ((item1, index) -> 
+	if(item.stationName as String contains item1.stationName as  String)
+	({"stationCode":item1.stationCode} ++ 
+	 {"stationName" : item1.stationName} ++ 
+	 {"postCode" : item.stationPostCode}
+	)  else null
+)))) - null
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="3533eeef-9eb1-4317-a608-35ea66410403" message="payload is::::#[payload]"/>
+		<json-logger:logger doc:name="Logger" doc:id="b4d96f4b-ae71-4681-bb72-ec714b362347" config-ref="jsonLoggerConfig" message="end of station list flow" tracePoint="END"/>
+	</flow>
+	<flow name="attraction-spots-flow" doc:id="ef9d1105-963c-4cbe-86ec-7e8522149f41" >
+		<json-logger:logger doc:name="Logger" doc:id="b65039a3-7fe8-4983-b6c3-162a825703b2" config-ref="jsonLoggerConfig" message="start of attractions spots flow"/>
+		<http:request method="GET" doc:name="Request" doc:id="a9740f8d-bd42-42ef-8a7b-61e5f370790a" config-ref="attractionSpotRequestConfiguration" path="${attractionSpot.basePath}">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	address : message.attributes.queryParams.city
+}]]]></http:query-params>
+		</http:request>
+		<json-logger:logger doc:name="Logger" doc:id="27384855-0889-4573-a3ed-c46cb0c8f092" config-ref="jsonLoggerConfig" message="end of attractions spots flow" tracePoint="END"/>
+	</flow>
+	<flow name="weather-flow" doc:id="20228da8-9003-485e-9eff-256677d8953a" >
+		<!-- <weather-data-sapi:get-forecasts doc:name="Get forecasts" doc:id="98aba01f-f6a9-4a6c-9714-e5af5690f659" config-ref="Weather_data_sapi_Config" city="#[message.attributes.queryparams.city]" date="#[message.attributes.queryparams.date]"/>
+		 -->
+		<json-logger:logger doc:name="Logger" doc:id="dcbf1c59-3736-44c0-adc2-90a0e2450419" config-ref="jsonLoggerConfig" message="start of weather flow"/>
+		<http:request method="GET" doc:name="Request" doc:id="8e281779-4dc2-4782-a50c-428f73f9d774" config-ref="weatherDataConfiguration" path="${forecast.basePath}">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	date : message.attributes.queryParams.date,
+	city : message.attributes.queryParams.city,
+	units : message.attributes.queryParams.units default " "
+}]]]></http:query-params>
+		</http:request>
+		<json-logger:logger doc:name="Logger" doc:id="27719471-79af-4293-a17f-380d1d900b73" config-ref="jsonLoggerConfig" message="end of weather flow" tracePoint="END"/>
+	</flow>
+	<flow name="post-codes-flow" doc:id="d1b4a155-0f52-4700-8c78-ee8583e100a1" >
+		<json-logger:logger doc:name="Logger" doc:id="06e9ee63-d662-4a31-86aa-40f4c4ef595c" config-ref="jsonLoggerConfig" message="start of postcodes flow"/>
+		<http:request method="GET" doc:name="Request" doc:id="395d7372-c311-4cd7-917a-8b2a8ea868bf" config-ref="postCodesConfiguration" path="${postCode.basePath}">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	address : message.attributes.queryParams.address
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="7069eda8-d42b-4fa7-8fd7-5a118f1315c0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Arrays
+output application/json
+---
+slice(payload, 0, 10)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="8a65d803-f506-4e2f-83f4-cb66b86ded26" message="final payload::::#[payload]"/>
+		<json-logger:logger doc:name="Logger" doc:id="875bd159-f9dd-485b-8afd-3c6740c81a7b" config-ref="jsonLoggerConfig" message="End of postcodes flow" tracePoint="END"/>
+	</flow>
+</mule>

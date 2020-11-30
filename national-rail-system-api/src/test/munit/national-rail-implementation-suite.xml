@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="national-rail-implementation-suite.xml" />
+	<munit:test name="get-arrival-board-details-flow-test" doc:id="2b374385-19f9-4734-80ad-77acedf98130" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request for Arrival Board Details" doc:id="3ee69158-29f6-4a03-b100-d241dfe3cd4e" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d36243c1-c337-4352-b702-2ee3a809345d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/xml --- readUrl('classpath://getarrivalboarddetailsflowtest\mock_payload.dwl')]" mediaType="application/xml" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://getarrivalboarddetailsflowtest\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="headerVar" value="#[output application/xml --- readUrl('classpath://getarrivalboarddetailsflowtest\mock_variable_.dwl')]" mediaType="application/xml" encoding="UTF-8" />
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getarrivalboarddetailsflowtest\mock_variable_1.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="62fa7f49-bff8-41a5-b0d6-9ee8ed80f440" >
+				<munit:payload value="#[readUrl('classpath://getarrivalboarddetailsflowtest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://getarrivalboarddetailsflowtest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getarrivalboarddetailsflowtest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get-arrival-board-details-flow" doc:id="7e522599-4a4a-4640-b467-7c0e2664fdc2" name="get-arrival-board-details-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="7436be8b-330b-4338-8ea9-fd837835d624" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getarrivalboarddetailsflowtest::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="get-station-list-flow-test1" doc:id="7de4c72b-2272-49d1-9d7c-24773026cecb" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Request for all stations" doc:id="45c07ff8-5c36-467b-ae8d-a62439fd0cef" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a7ac8ebb-4911-4fa9-8202-7ecd9986e199" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/xml --- readUrl('classpath://getstationlistflowtest1\mock_payload.dwl')]" mediaType="application/xml" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://getstationlistflowtest1\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getstationlistflowtest1\mock_variable_.dwl')]" />
+						<munit-tools:variable key="header" value="#[output application/xml --- readUrl('classpath://getstationlistflowtest1\mock_variable_1.dwl')]" mediaType="application/xml" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="295d5dbc-c6aa-4776-976b-c402f8405208" >
+				<munit:payload value="#[readUrl('classpath://getstationlistflowtest1\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://getstationlistflowtest1\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getstationlistflowtest1\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get-station-list-flow" doc:id="a15e0705-a8dd-4cc4-898d-884b4a1c76ed" name="get-station-list-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="5bb63fc1-fd41-47d4-9ed9-1d2f48cce36b" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getstationlistflowtest1::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	
+<!-- Test cases for Actual endpoint -->
+<!--   <munit:test name="get-station-list-flow-test" doc:id="9fa93921-bb1f-4f7d-bfc5-7815d1521086">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Consume NRE SOAP API" doc:id="d9411ee3-87f7-4781-9cf1-ffde5e135193" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Consume NRE SOAP API" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="nreRefWebServiceConsumerConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsString('getstationlistflowtest/getStationListResponse.xml')]" mediaType="application/xml" encoding="UTF-8" />
+					<munit-tools:attributes value="#[readUrl('classpath://getstationlistflowtest\mock_attributes.dwl')]" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getstationlistflowtest\mock_variable_.dwl')]" />
+						<munit-tools:variable key="header" value="#[output application/xml -&#45;&#45; readUrl('classpath://getstationlistflowtest\mock_variable_1.dwl')]" mediaType="application/xml" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="aedd3c89-792f-495a-a3b0-230c0ee241f2" >
+				<munit:payload value="#[readUrl('classpath://getstationlistflowtest\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://getstationlistflowtest\set-event_attributes.dwl')]" />
+				<munit:variables >
+					<munit:variable key="outboundHeaders" value="#[readUrl('classpath://getstationlistflowtest\set-event_variable_.dwl')]" />
+				</munit:variables>
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get-station-list-flow" doc:id="a6414ec0-58ba-447f-a914-19ff649c1e8d" name="get-station-list-flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="b454c97a-87dc-41d0-b380-46d5d86ee5a1" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import getstationlistflowtest::assert_expression_payload
+-&#45;&#45;
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="wsc-connectivity-error-test" doc:id="ed10ee52-fc3d-415a-9722-9cbae27057f1">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Consume NRE SOAP API" doc:id="6b7ec8a5-0bb5-43d5-99ac-617ec689686a" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0aedaa74-4ae7-46dc-b8a9-0884d48b2ea1" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="nreRefWebServiceConsumerConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="WSC:CONNECTIVITY" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getstationlistflowtest\mock_variable_.dwl')]" />
+						<munit-tools:variable key="header" value="#[output application/xml -&#45;&#45; readUrl('classpath://getstationlistflowtest\mock_variable_1.dwl')]" mediaType="application/xml" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="5d699f50-3288-4bdb-857d-11dd248015d1" >
+				<flow-ref doc:name="Flow-ref to get-station-list-flow" doc:id="0c1abf17-5212-40f1-9fc2-fd4790599bed" name="get-station-list-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="aa5f7ffb-3f2d-48f8-aa02-8194a219cbc8" >
+						<logger level="INFO" doc:name="Logger" doc:id="9220116c-4a14-46ab-9852-0a8eeaec0978" message='#[""]'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="31bca28e-2125-41a8-9bc4-6a2a947fca52" actual="#[payload]" expected='#[{
+  "statusCode": "503",
+  "message": "Unable to reach National Rail Soap API"
+}]' />
+
+		</munit:validation>
+	
+</munit:test>
+<munit:test name="wsc-retry-exhausted-error-test" doc:id="ca9dbcb9-e659-4493-8eda-db4890400a4d">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Consume NRE SOAP API" doc:id="4b261545-d325-4ae6-a0f0-29c6fcc2420e" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0aedaa74-4ae7-46dc-b8a9-0884d48b2ea1" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="nreRefWebServiceConsumerConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="WSC:RETRY_EXHAUSTED" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getstationlistflowtest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			
+
+</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="f9c2aea5-0cd3-472a-b0e9-1d1c84a4b24e" >
+				<flow-ref doc:name="Flow-ref to get-station-list-flow" doc:id="ce12ec7b-f1fc-4b1e-9ca4-a2d22e4716ae" name="get-station-list-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="29ac7831-893b-41f6-8261-2cb44e136d4e" >
+						<logger level="INFO" doc:name="Logger" doc:id="bf83d4d2-6d58-4a17-a125-7c41f6f4cafe" message='#[""]'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="9eaade37-aa4f-4374-8356-2800aa693fca" actual="#[payload]" expected='#[{
+  "statusCode": "503",
+  "message": "Unable to reach National Rail Soap API"
+}]'/>
+
+		
+</munit:validation>
+	
+</munit:test>
+<munit:test name="wsc-timeout-error-test" doc:id="e91df7ef-98bb-4359-9a5a-d80c0ed94ea7">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Consume NRE SOAP API" doc:id="052d87e7-767e-4034-9017-6c948da19e2e" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0aedaa74-4ae7-46dc-b8a9-0884d48b2ea1" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="nreRefWebServiceConsumerConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="WSC:TIMEOUT" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getstationlistflowtest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			
+
+
+</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="ef29cfab-0f77-4963-9464-9e4562b61cca" >
+				<flow-ref doc:name="Flow-ref to get-station-list-flow" doc:id="0f690b44-2d08-4f07-b3a7-64196af7a44e" name="get-station-list-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="7ea8f932-ab16-4a19-872f-a3d13714ec4b" >
+						<logger level="INFO" doc:name="Logger" doc:id="063401ec-54fe-4645-99e7-7da31e1c4224" message='#[""]'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="b13a4444-a97e-4983-83b2-9ce3bc0c5418" actual="#[payload]" expected='#[{
+  "statusCode": "503",
+  "message": "Unable to reach National Rail Soap API"
+}]' />
+
+
+		</munit:validation>
+	
+
+</munit:test>
+<munit:test name="wsc-bad-request-error-test" doc:id="c347dfbe-0f38-4525-b849-12b9f3853782">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Consume NRE SOAP API" doc:id="b17d9478-f5a7-4a91-b9a9-ee922983638d" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0aedaa74-4ae7-46dc-b8a9-0884d48b2ea1" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="nreRefWebServiceConsumerConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="WSC:BAD_REQUEST" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getstationlistflowtest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="cf57ea1e-8b42-47e2-997a-663b53b7e012" >
+				<flow-ref doc:name="Flow-ref to get-station-list-flow" doc:id="b7c0f00d-b904-4976-afd3-3b7ff9a85d0f" name="get-station-list-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="3075823b-9d36-489d-84b6-1f042cdaa6d7" >
+						<logger level="INFO" doc:name="Logger" doc:id="8d8c2bd8-62c1-4669-8504-9534a18d5d94" message='#[""]'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="7a81033f-10d8-41c7-8b22-08c882a25bbb" actual="#[payload]" expected='#[{
+  statusCode: "500",
+  message: "Unexpected Error received from National Rail SOAP API"
+ }]'/>
+		
+</munit:validation>
+		
+</munit:test>
+<munit:test name="wsc-soap-fault-error-test" doc:id="061d3a4c-90ba-41db-9428-f03d73af06ce">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Consume NRE SOAP API" doc:id="7b7878ff-894e-4316-8018-681a60ce65fa" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0aedaa74-4ae7-46dc-b8a9-0884d48b2ea1" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="nreRefWebServiceConsumerConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="WSC:SOAP_FAULT" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getstationlistflowtest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+
+</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="9c183075-53a1-4f98-812b-a8ebe79b7750" >
+				<flow-ref doc:name="Flow-ref to get-station-list-flow" doc:id="7aba4da3-66a2-4f20-8a2c-bef560bb6b89" name="get-station-list-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="19d6c270-cdf2-46f5-b5da-024171a18a4c" >
+						<logger level="INFO" doc:name="Logger" doc:id="32467a00-385e-4831-829e-9b7e8e97f108" message='#[""]'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="63c7a79b-5171-41d2-828f-ee5044f339cb" actual="#[payload]" expected='#[{
+  statusCode: "500",
+  message: "Unexpected Error received from National Rail SOAP API"
+ }]' />
+
+		</munit:validation>
+		
+
+</munit:test>
+<munit:test name="wsc-invalid-wsdl-error-test" doc:id="21ac7327-35f3-4db3-8923-8bb99befa148">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Consume NRE SOAP API" doc:id="38a0e359-9109-4df1-b6c4-9edf232cc783" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0aedaa74-4ae7-46dc-b8a9-0884d48b2ea1" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="nreRefWebServiceConsumerConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="WSC:INVALID_WSDL" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getstationlistflowtest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+
+</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="fde312b5-5049-499c-a568-e4e4fc72c59c" >
+				<flow-ref doc:name="Flow-ref to get-station-list-flow" doc:id="0388f308-947b-41b1-b9dc-7eed7288bf19" name="get-station-list-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="595bcdd6-0160-4125-8866-d0f716c29ae3" >
+						<logger level="INFO" doc:name="Logger" doc:id="de717b2a-5c97-42e7-8df1-c18685729aa6" message='#[""]' />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="95f56d5a-0dd3-44cc-956f-47fc74390d72" actual="#[payload]" expected='#[{
+  statusCode: "500",
+  message: "Unexpected Error received from National Rail SOAP API"
+ }]' />
+
+		</munit:validation>
+		
+
+</munit:test>
+	<munit:test name="mule-expression-error-test" doc:id="09bcaff0-1989-435d-9e58-04349198e8bb">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock Consume NRE SOAP API" doc:id="b8bc68a7-c5cd-4e73-b1ad-7730014daa14" processor="wsc:consume">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0aedaa74-4ae7-46dc-b8a9-0884d48b2ea1" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="nreRefWebServiceConsumerConfig" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="MULE:EXPRESSION" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getstationlistflowtest\mock_variable_.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+
+</munit-tools:mock-when>
+		
+</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="a4b9303e-2ea2-4257-b27b-8932a202be7d" >
+				<flow-ref doc:name="Flow-ref to get-station-list-flow" doc:id="522874bc-8c08-4034-8c71-576ab9459741" name="get-station-list-flow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2446af7b-c1e6-40d2-9f5e-01b2c6cacc33" >
+						<logger level="INFO" doc:name="Logger" doc:id="b1adc1b2-6453-4674-93d5-3561cee98f86" message='#[""]'/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		
+</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="86b8eb96-0e67-4a8f-a29a-5fbbcdd8722e" actual="#[payload]" expected='#[{
+  statusCode: "500",
+  message: "Unexpected Error Occured while transforming data received from National Rail SOAP API"
+ }]'/>
+		
+</munit:validation>
+		
+</munit:test>
+ -->
+
+</mule>

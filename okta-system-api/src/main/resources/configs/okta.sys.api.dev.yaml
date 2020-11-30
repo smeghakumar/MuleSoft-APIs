@@ -1,0 +1,47 @@
+http:
+  port: "8084"
+  request:
+    header:
+      clientId: "*****"
+      clientSecret: "*****"
+      
+okta:
+  host: "backend-mock-ext-api.us-e2.cloudhub.io"
+  port: "80"
+  
+  protocol: "HTTP"
+  
+  app:
+    token: "SSWS *****"
+    auth:
+      url: "/api/oauth2/default/v1/token?scope=mulescope&grant_type=client_credentials"
+      clientId: "*****"
+      clientSecret: "*****"
+
+  user:
+    basepath: "/api/users"
+    
+    authenticate:
+      basepath: "/api/authn"
+
+    forgotPassword:
+      basepath: "/credentials/forgot_password?sendEmail=false"
+      method: "POST"
+      
+    changePassword:
+      basepath: "/credentials/change_password"
+      
+    deactivate:
+      basepath: "/lifecycle/deactivate"
+
+      
+json:
+  logger:
+    application:
+      name: ${project.artifactId}
+      version: ${project.version}
+    disabledFields: ""
+
+mule:
+  env: ""
+      
